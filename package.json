@@ -1,0 +1,15 @@
+{
+  "name": "ai-qa-assistant",
+  "version": "1.0.0",
+  "description": "AI QA Assistant - Production-ready platform for QA Engineering & Automation",
+  "private": true,
+  "scripts": {
+    "server": "npm --prefix server start",
+    "server:dev": "npm --prefix server run dev",
+    "client": "npm --prefix client dev",
+    "client:build": "npm --prefix client run build",
+    "seed": "npm --prefix server run seed",
+    "test": "npm --prefix server test"
+  },
+  "keywords": ["qa", "testing", "ai", "automation", "jira", "testcases"]
+}

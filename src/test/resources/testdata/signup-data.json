@@ -1,0 +1,212 @@
+{
+  "validUsers": [
+    {
+      "testId": "CM-DATA-001",
+      "firstName": "Alexander",
+      "lastName": "Wright",
+      "phone": "9876543210",
+      "password": "Password@1234",
+      "confirmPassword": "Password@1234",
+      "description": "Standard valid enterprise user"
+    },
+    {
+      "testId": "CM-DATA-002",
+      "firstName": "Mary Jane",
+      "lastName": "Watson",
+      "phone": "8123456789",
+      "password": "Secure#Key2026",
+      "confirmPassword": "Secure#Key2026",
+      "description": "Valid user with space in first name"
+    }
+  ],
+  "invalidFirstNames": [
+    {
+      "testId": "CM-NAME-001",
+      "input": "",
+      "expectedError": "Required first name",
+      "description": "Empty first name"
+    },
+    {
+      "testId": "CM-NAME-002",
+      "input": "John123",
+      "expectedError": "First name must be alphabetical only.",
+      "description": "First name containing digits"
+    },
+    {
+      "testId": "CM-NAME-003",
+      "input": "John@Doe",
+      "expectedError": "First name must be alphabetical only.",
+      "description": "First name containing special characters"
+    },
+    {
+      "testId": "CM-NAME-004",
+      "input": " John",
+      "expectedError": "Extra space not allowed.",
+      "description": "First name with leading space"
+    },
+    {
+      "testId": "CM-NAME-005",
+      "input": "John ",
+      "expectedError": "Extra space not allowed.",
+      "description": "First name with trailing space"
+    },
+    {
+      "testId": "CM-NAME-006",
+      "input": "John  Doe",
+      "expectedError": "Extra space not allowed.",
+      "description": "First name with consecutive spaces"
+    },
+    {
+      "testId": "CM-NAME-007",
+      "input": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "expectedError": "Must be 30 characters or less",
+      "description": "First name exceeding 30 characters (31 chars)"
+    }
+  ],
+  "invalidLastNames": [
+    {
+      "testId": "CM-LNAME-001",
+      "input": "",
+      "expectedError": "Required last name",
+      "description": "Empty last name"
+    },
+    {
+      "testId": "CM-LNAME-002",
+      "input": "Smith99",
+      "expectedError": "Last name must be alphabetical only.",
+      "description": "Last name containing digits"
+    },
+    {
+      "testId": "CM-LNAME-003",
+      "input": "Smith!#",
+      "expectedError": "Last name must be alphabetical only.",
+      "description": "Last name containing special characters"
+    },
+    {
+      "testId": "CM-LNAME-004",
+      "input": " Smith",
+      "expectedError": "Extra space not allowed.",
+      "description": "Last name with leading space"
+    },
+    {
+      "testId": "CM-LNAME-005",
+      "input": "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
+      "expectedError": "Must be 30 characters or less",
+      "description": "Last name exceeding 30 characters (31 chars)"
+    }
+  ],
+  "invalidEmails": [
+    {
+      "testId": "CM-EMAIL-001",
+      "input": "",
+      "expectedError": "Required Email",
+      "description": "Empty email"
+    },
+    {
+      "testId": "CM-EMAIL-002",
+      "input": "plainaddress",
+      "expectedError": "Enter a valid Email.",
+      "description": "Missing @ and domain"
+    },
+    {
+      "testId": "CM-EMAIL-003",
+      "input": "user@",
+      "expectedError": "Enter a valid Email.",
+      "description": "Missing domain"
+    },
+    {
+      "testId": "CM-EMAIL-004",
+      "input": "@example.com",
+      "expectedError": "Enter a valid Email.",
+      "description": "Missing username"
+    },
+    {
+      "testId": "CM-EMAIL-005",
+      "input": "user+tag@example.com",
+      "expectedError": "Only letters (a-z), numbers (0-9), and dots (.) are allowed.",
+      "description": "Disallowed special character '+'"
+    },
+    {
+      "testId": "CM-EMAIL-006",
+      "input": "user name@example.com",
+      "expectedError": "Enter a valid Email.",
+      "description": "Email containing space"
+    }
+  ],
+  "invalidPasswords": [
+    {
+      "testId": "CM-PASS-001",
+      "input": "",
+      "expectedError": "Required password",
+      "description": "Empty password"
+    },
+    {
+      "testId": "CM-PASS-002",
+      "input": "Pass@12",
+      "expectedError": "Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and One Special Character",
+      "description": "Password shorter than 8 characters (7 chars)"
+    },
+    {
+      "testId": "CM-PASS-003",
+      "input": "pass@1234",
+      "expectedError": "Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and One Special Character",
+      "description": "Missing uppercase letter"
+    },
+    {
+      "testId": "CM-PASS-004",
+      "input": "PASS@1234",
+      "expectedError": "Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and One Special Character",
+      "description": "Missing lowercase letter"
+    },
+    {
+      "testId": "CM-PASS-005",
+      "input": "Password@",
+      "expectedError": "Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and One Special Character",
+      "description": "Missing numeric digit"
+    },
+    {
+      "testId": "CM-PASS-006",
+      "input": "Password1234",
+      "expectedError": "Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and One Special Character",
+      "description": "Missing special character"
+    }
+  ],
+  "invalidConfirmPasswords": [
+    {
+      "testId": "CM-CPASS-001",
+      "password": "Password@1234",
+      "confirmPassword": "",
+      "expectedError": "Required confirm password",
+      "description": "Empty confirm password"
+    },
+    {
+      "testId": "CM-CPASS-002",
+      "password": "Password@1234",
+      "confirmPassword": "DifferentPassword@1",
+      "expectedError": "Passwords must match",
+      "description": "Completely mismatched password"
+    },
+    {
+      "testId": "CM-CPASS-003",
+      "password": "Password@1234",
+      "confirmPassword": "password@1234",
+      "expectedError": "Passwords must match",
+      "description": "Case mismatch"
+    },
+    {
+      "testId": "CM-CPASS-004",
+      "password": "Password@1234",
+      "confirmPassword": "Password@1234 ",
+      "expectedError": "Passwords must match",
+      "description": "Trailing whitespace mismatch"
+    }
+  ],
+  "invalidPhones": [
+    {
+      "testId": "CM-PHONE-001",
+      "input": "12",
+      "expectedError": "Phone number must be between 6 and 15 digits, including optional country code",
+      "description": "Phone number less than 6 digits"
+    }
+  ]
+}
