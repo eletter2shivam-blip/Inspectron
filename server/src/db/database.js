@@ -2,8 +2,11 @@ const fs = require('fs');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 
-const DATA_DIR = path.join(__dirname, '../../data');
-const DB_FILE = path.join(DATA_DIR, 'db.json');
+const BUNDLED_DATA_DIR = path.join(__dirname, '../../data');
+const BUNDLED_DB_FILE = path.join(BUNDLED_DATA_DIR, 'db.json');
+
+const DATA_DIR = process.env.VERCEL ? path.join('/tmp', 'data') : BUNDLED_DATA_DIR;
+const DB_FILE = process.env.VERCEL ? path.join(DATA_DIR, 'db.json') : BUNDLED_DB_FILE;
 
 // Initial empty schema
 const INITIAL_SCHEMA = {
@@ -33,7 +36,20 @@ class JSONDatabase {
 
   init() {
     if (!fs.existsSync(DATA_DIR)) {
-      fs.mkdirSync(DATA_DIR, { recursive: true });
+      try {
+        fs.mkdirSync(DATA_DIR, { recursive: true });
+      } catch (err) {
+        console.error('Error creating DATA_DIR:', err);
+      }
+    }
+
+    // On Vercel, copy bundled db.json to /tmp if not already copied
+    if (process.env.VERCEL && !fs.existsSync(DB_FILE) && fs.existsSync(BUNDLED_DB_FILE)) {
+      try {
+        fs.copyFileSync(BUNDLED_DB_FILE, DB_FILE);
+      } catch (e) {
+        console.error('Error copying seed db to /tmp:', e);
+      }
     }
 
     if (fs.existsSync(DB_FILE)) {
@@ -61,7 +77,11 @@ class JSONDatabase {
     } catch (err) {
       console.error('Failed to persist database:', err);
       // Fallback direct write
-      fs.writeFileSync(DB_FILE, JSON.stringify(this.data, null, 2), 'utf-8');
+      try {
+        fs.writeFileSync(DB_FILE, JSON.stringify(this.data, null, 2), 'utf-8');
+      } catch (fallbackErr) {
+        console.error('Fallback persist failed:', fallbackErr);
+      }
     }
   }
 

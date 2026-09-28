@@ -4,6 +4,7 @@
   "description": "AI QA Assistant - Production-ready platform for QA Engineering & Automation",
   "private": true,
   "scripts": {
+    "build": "cd client && npm install && npm run build",
     "server": "npm --prefix server start",
     "server:dev": "npm --prefix server run dev",
     "client": "npm --prefix client dev",
@@ -11,5 +12,23 @@
     "seed": "npm --prefix server run seed",
     "test": "npm --prefix server test"
   },
-  "keywords": ["qa", "testing", "ai", "automation", "jira", "testcases"]
+  "dependencies": {
+    "@google/genai": "^2.24.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "uuid": "^10.0.0",
+    "xlsx": "^0.18.5",
+    "zod": "^3.23.8"
+  },
+  "keywords": [
+    "qa",
+    "testing",
+    "ai",
+    "automation",
+    "jira",
+    "testcases"
+  ]
 }

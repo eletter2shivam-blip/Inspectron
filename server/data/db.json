@@ -487,6 +487,78 @@
       },
       "created_at": "2026-09-28T11:54:50.517Z",
       "updated_at": "2026-09-28T11:54:50.517Z"
+    },
+    {
+      "id": "REQ-CMG-007",
+      "project_id": "proj-cmgalaxy-01",
+      "title": "Campaign Analytics Date & Tag Filtering",
+      "source": "Manual Input",
+      "status": "Analyzed",
+      "raw_text": "As a campaign analyst, I want to filter ad reports by date range and campaign tag so that I can evaluate ROAS.",
+      "analysis_result": {
+        "summary": "Structured requirement specification for \"filter ad reports by date range and campaign tag\" on CMGalaxy, defining workflow parameters, validation constraints, and security standards.",
+        "actors": [
+          "Campaign analyst",
+          "System Administrator",
+          "API Client / Backend Service"
+        ],
+        "preconditions": [
+          "User account is provisioned with active status in CMGalaxy",
+          "Network connectivity is established and API gateway is healthy"
+        ],
+        "business_rules": [
+          "All user inputs must be sanitized against SQLi and XSS before persistence",
+          "State transitions must be atomic and committed to PostgreSQL with audit trail",
+          "Pagination default to 20 items per page with max ceiling of 100"
+        ],
+        "functional_requirements": [
+          "Render accessible UI elements enabling campaign analyst to filter ad reports by date range and campaign tag",
+          "Perform instantaneous client-side validation on all mandatory input controls",
+          "Persist modified state and return standardized JSON payload with timestamp",
+          "Provide contextual toast notifications upon success or validation errors"
+        ],
+        "non_functional_considerations": [
+          "P95 response time under 400ms under standard operational load",
+          "TLS 1.3 encryption in transit and AES-256 at rest for sensitive attributes",
+          "WCAG 2.1 AA accessibility compliance including keyboard tab navigation",
+          "Idempotent API processing to avoid duplicate transactions on network retry"
+        ],
+        "acceptance_criteria": [
+          "AC-1: campaign analyst can successfully execute: \"filter ad reports by date range and campaign tag\" when valid inputs are supplied",
+          "AC-2: Submitting empty, malformed, or boundary-violating inputs renders clear inline field errors",
+          "AC-3: System displays actionable loading indicator while backend processing is underway",
+          "AC-4: Unauthorized access attempts are rejected with HTTP 401/403 and redirected to login",
+          "AC-5: Network disruptions display a graceful retry prompt without loss of entered form data"
+        ],
+        "ambiguities": [
+          "Unclear what exact error message should be displayed if downstream dependencies fail or time out",
+          "Unspecified whether mobile viewport requires a specialized simplified card layout versus full table",
+          "Audit logging requirements not explicitly specified for compliance tracking"
+        ],
+        "missing_information": [
+          "Specific role-based access permissions (RBAC) required for different team tiers",
+          "Telemetry and analytics event names to fire for data funnel tracking",
+          "Internationalization (i18n) / localization requirements for non-English users"
+        ],
+        "dependencies": [
+          "CMGalaxy Core API Service",
+          "PostgreSQL Primary Datastore",
+          "Redis Distributed Cache & Rate Limiting Cluster"
+        ],
+        "risks": [
+          "Concurrent updates causing race conditions and inconsistent state",
+          "Third-party external gateway latency causing user session timeouts",
+          "Incomplete input sanitization leading to potential injection vulnerabilities"
+        ],
+        "testable_conditions": [
+          "Boundary value testing on minimum and maximum input lengths",
+          "Simultaneous double-clicking on submit button (race condition / idempotency check)",
+          "Submitting special Unicode, UTF-8 emoji, and HTML script characters",
+          "Network throttling simulation (Slow 3G, offline recovery)"
+        ]
+      },
+      "created_at": "2026-09-28T12:53:29.969Z",
+      "updated_at": "2026-09-28T12:53:29.969Z"
     }
   ],
   "jira_issues": [
@@ -2321,6 +2393,406 @@
       "quality_score": 100,
       "created_at": "2026-09-28T11:54:51.105Z",
       "updated_at": "2026-09-28T11:54:51.105Z"
+    },
+    {
+      "id": "9be8dac6-4e9c-400f-a5c0-d7bea1a175ca",
+      "project_id": "proj-cmgalaxy-01",
+      "requirement_id": "REQ-AUTO",
+      "module": "Campaign",
+      "feature": "Lead CSV Import",
+      "scenario": "Verify standard successful execution of upload a CSV file with max 10MB to import campaign leads",
+      "title": "Verify user can successfully upload a CSV file with max 10MB to import campaign leads with valid inputs",
+      "preconditions": "User is authenticated with valid credentials; module Campaign is accessible.",
+      "test_data": "Standard valid payload with clean alphanumeric characters",
+      "steps": [
+        "1. Navigate to Campaign interface",
+        "2. Fill in all required fields with valid input parameters",
+        "3. Click the primary submission/action button",
+        "4. Inspect the updated view and confirmation feedback"
+      ],
+      "expected_result": "Action completes successfully; database updates state; success toast is displayed; no console errors.",
+      "priority": "P1-Critical",
+      "test_type": "Functional",
+      "automation_candidate": true,
+      "notes": "Primary happy path; baseline candidate for CI/CD smoke test suite.",
+      "status": "Draft",
+      "quality_score": 100,
+      "created_at": "2026-09-28T12:53:30.198Z",
+      "updated_at": "2026-09-28T12:53:30.198Z"
+    },
+    {
+      "id": "f4ab4c69-e716-490d-9982-2634b7854f1a",
+      "project_id": "proj-cmgalaxy-01",
+      "requirement_id": "REQ-AUTO",
+      "module": "Campaign",
+      "feature": "Lead CSV Import",
+      "scenario": "Validation failure when required fields are submitted empty",
+      "title": "Verify inline validation error when required fields are left blank",
+      "preconditions": "User is on the Campaign form.",
+      "test_data": "All mandatory fields set to empty string \"\"",
+      "steps": [
+        "1. Clear all inputs on the Campaign form",
+        "2. Attempt to submit by clicking submit button",
+        "3. Observe input field highlights and validation messages"
+      ],
+      "expected_result": "Form submission is blocked; mandatory inputs are highlighted in red; specific helper text \"This field is required\" is displayed.",
+      "priority": "P2-High",
+      "test_type": "Negative",
+      "automation_candidate": true,
+      "notes": "Client-side and server-side validation integrity verification.",
+      "status": "Draft",
+      "quality_score": 100,
+      "created_at": "2026-09-28T12:53:30.198Z",
+      "updated_at": "2026-09-28T12:53:30.198Z"
+    },
+    {
+      "id": "54e3b789-21b5-4bf9-826c-fc5dd5683185",
+      "project_id": "proj-cmgalaxy-01",
+      "requirement_id": "REQ-AUTO",
+      "module": "Campaign",
+      "feature": "Lead CSV Import",
+      "scenario": "Boundary limit validation for minimum and maximum allowed length",
+      "title": "Verify field behavior at exact minimum (N) and maximum allowed character limits (N_MAX)",
+      "preconditions": "User has access to input form.",
+      "test_data": "Min boundary: 1 char, Max boundary: 255 chars, Overflow: 256 chars",
+      "steps": [
+        "1. Enter input of exactly maximum permitted length (e.g. 255 characters)",
+        "2. Confirm acceptance and submit",
+        "3. Attempt to paste 256 characters into the field"
+      ],
+      "expected_result": "Field accepts exact boundary (255 chars); field prevents typing beyond limit or displays counter \"255/255 characters reached\".",
+      "priority": "P2-High",
+      "test_type": "Boundary",
+      "automation_candidate": true,
+      "notes": "Checks database schema constraint alignment and UI truncation.",
+      "status": "Draft",
+      "quality_score": 100,
+      "created_at": "2026-09-28T12:53:30.198Z",
+      "updated_at": "2026-09-28T12:53:30.198Z"
+    },
+    {
+      "id": "b1ba825f-a7b2-4e85-b27b-a0a63724f1ef",
+      "project_id": "proj-cmgalaxy-01",
+      "requirement_id": "REQ-AUTO",
+      "module": "Campaign",
+      "feature": "Lead CSV Import",
+      "scenario": "Input sanitization against Cross-Site Scripting (XSS) and SQL Injection payloads",
+      "title": "Verify system sanitizes or rejects malicious XSS script tags and SQL syntax",
+      "preconditions": "User is authenticated.",
+      "test_data": "<script>alert('XSS_TEST')</script> OR '1'='1' --",
+      "steps": [
+        "1. Enter malicious script payload into text inputs",
+        "2. Submit the form",
+        "3. View the rendered output on dashboard and verify DOM source"
+      ],
+      "expected_result": "Payload is HTML-encoded/sanitized; no JavaScript executes; SQL queries are parameterized safely.",
+      "priority": "P1-Critical",
+      "test_type": "Security",
+      "automation_candidate": true,
+      "notes": "Critical security regression test for OWASP Top 10 vulnerabilities.",
+      "status": "Draft",
+      "quality_score": 100,
+      "created_at": "2026-09-28T12:53:30.198Z",
+      "updated_at": "2026-09-28T12:53:30.198Z"
+    },
+    {
+      "id": "da4c9457-e375-4103-b5bf-ff0599c85ff2",
+      "project_id": "proj-cmgalaxy-01",
+      "requirement_id": "REQ-AUTO",
+      "module": "Campaign",
+      "feature": "Lead CSV Import",
+      "scenario": "Rapid multi-click submission idempotency check",
+      "title": "Verify rapid duplicate clicks on submit button do not create duplicate records",
+      "preconditions": "Form is filled with valid data.",
+      "test_data": "Valid submission data",
+      "steps": [
+        "1. Click the Submit button 3 times in rapid succession (< 200ms)",
+        "2. Monitor network panel requests and backend database records"
+      ],
+      "expected_result": "Submit button disables immediately upon first click with loading spinner; only 1 transaction is processed in backend; no duplicate entity created.",
+      "priority": "P2-High",
+      "test_type": "Integration",
+      "automation_candidate": true,
+      "notes": "Idempotency key or UI button debouncing validation.",
+      "status": "Draft",
+      "quality_score": 100,
+      "created_at": "2026-09-28T12:53:30.198Z",
+      "updated_at": "2026-09-28T12:53:30.198Z"
+    },
+    {
+      "id": "22927465-6427-4295-98d9-1e0dca36d6d7",
+      "project_id": "proj-cmgalaxy-01",
+      "requirement_id": "REQ-AUTO",
+      "module": "Campaign",
+      "feature": "Lead CSV Import",
+      "scenario": "Session timeout and unauthorized direct URL access",
+      "title": "Verify unauthenticated or expired user is redirected to login with redirect_url preserved",
+      "preconditions": "User session cookie/token has expired or is cleared.",
+      "test_data": "Expired JWT token or cleared localStorage",
+      "steps": [
+        "1. Clear authentication token in browser storage",
+        "2. Attempt to navigate directly to Campaign protected endpoint",
+        "3. Check network status and view navigation"
+      ],
+      "expected_result": "Request returns 401 Unauthorized; browser redirects to /login?redirect_to=Campaign; no protected data is exposed.",
+      "priority": "P1-Critical",
+      "test_type": "Security",
+      "automation_candidate": true,
+      "notes": "Authentication gatekeeper verification.",
+      "status": "Draft",
+      "quality_score": 100,
+      "created_at": "2026-09-28T12:53:30.198Z",
+      "updated_at": "2026-09-28T12:53:30.198Z"
+    },
+    {
+      "id": "e401e983-b4db-4cc2-ab47-46bdc90f7da3",
+      "project_id": "proj-cmgalaxy-01",
+      "requirement_id": "REQ-AUTO",
+      "module": "Campaign",
+      "feature": "Lead CSV Import",
+      "scenario": "Graceful error handling when server returns 500 internal server error",
+      "title": "Verify UI displays user-friendly error dialog when API returns 500 error",
+      "preconditions": "API mock configured to respond with HTTP 500 Internal Server Error.",
+      "test_data": "Standard request triggered under server fault injection",
+      "steps": [
+        "1. Trigger action on Campaign",
+        "2. Mock server response with HTTP 500 and payload { \"error\": \"Internal error\" }",
+        "3. Observe UI reaction"
+      ],
+      "expected_result": "UI catches error gracefully; shows message \"Something went wrong. Please try again\"; provides \"Retry\" button; user input is preserved in form.",
+      "priority": "P2-High",
+      "test_type": "Functional",
+      "automation_candidate": true,
+      "notes": "Resilience and user experience recovery testing.",
+      "status": "Draft",
+      "quality_score": 100,
+      "created_at": "2026-09-28T12:53:30.198Z",
+      "updated_at": "2026-09-28T12:53:30.198Z"
+    },
+    {
+      "id": "785421b7-8028-4be9-8aee-ef515e86eed4",
+      "project_id": "proj-cmgalaxy-01",
+      "requirement_id": "REQ-AUTO",
+      "module": "Campaign",
+      "feature": "Lead CSV Import",
+      "scenario": "Responsive layout and touch target compliance across mobile and desktop",
+      "title": "Verify Campaign layout renders correctly without horizontal scroll on mobile viewport (375px)",
+      "preconditions": "Browser devtools viewport set to 375x812 (iPhone 13/14).",
+      "test_data": "N/A",
+      "steps": [
+        "1. Open Campaign on mobile viewport",
+        "2. Check navigation header, form inputs, button tap targets (min 44x44px)",
+        "3. Fill and submit action using touch interactions"
+      ],
+      "expected_result": "All elements wrap cleanly; zero horizontal overflow; buttons accessible and responsive.",
+      "priority": "P3-Medium",
+      "test_type": "Compatibility",
+      "automation_candidate": false,
+      "notes": "Cross-device visual regression inspection.",
+      "status": "Draft",
+      "quality_score": 100,
+      "created_at": "2026-09-28T12:53:30.198Z",
+      "updated_at": "2026-09-28T12:53:30.198Z"
+    },
+    {
+      "id": "4d4381a8-e6b3-4e2c-b2b1-ce8c45e5e460",
+      "project_id": "proj-cmgalaxy-01",
+      "requirement_id": "CMG-104",
+      "module": "Auth Service",
+      "feature": "Implement secure self-service password reset flow with 15min expiry",
+      "scenario": "Verify standard successful execution of perform system action",
+      "title": "Verify End User can successfully perform system action with valid inputs",
+      "preconditions": "User is authenticated with valid credentials; module Auth Service is accessible.",
+      "test_data": "Standard valid payload with clean alphanumeric characters",
+      "steps": [
+        "1. Navigate to Auth Service interface",
+        "2. Fill in all required fields with valid input parameters",
+        "3. Click the primary submission/action button",
+        "4. Inspect the updated view and confirmation feedback"
+      ],
+      "expected_result": "Action completes successfully; database updates state; success toast is displayed; no console errors.",
+      "priority": "P1-Critical",
+      "test_type": "Functional",
+      "automation_candidate": true,
+      "notes": "Generated directly from Jira Issue CMG-104",
+      "status": "Approved",
+      "quality_score": 100,
+      "created_at": "2026-09-28T12:53:31.211Z",
+      "updated_at": "2026-09-28T12:53:31.211Z"
+    },
+    {
+      "id": "db8dc3af-55fe-40f7-bd23-ed80c7382d48",
+      "project_id": "proj-cmgalaxy-01",
+      "requirement_id": "CMG-104",
+      "module": "Auth Service",
+      "feature": "Implement secure self-service password reset flow with 15min expiry",
+      "scenario": "Validation failure when required fields are submitted empty",
+      "title": "Verify inline validation error when required fields are left blank",
+      "preconditions": "User is on the Auth Service form.",
+      "test_data": "All mandatory fields set to empty string \"\"",
+      "steps": [
+        "1. Clear all inputs on the Auth Service form",
+        "2. Attempt to submit by clicking submit button",
+        "3. Observe input field highlights and validation messages"
+      ],
+      "expected_result": "Form submission is blocked; mandatory inputs are highlighted in red; specific helper text \"This field is required\" is displayed.",
+      "priority": "P2-High",
+      "test_type": "Negative",
+      "automation_candidate": true,
+      "notes": "Generated directly from Jira Issue CMG-104",
+      "status": "Approved",
+      "quality_score": 100,
+      "created_at": "2026-09-28T12:53:31.211Z",
+      "updated_at": "2026-09-28T12:53:31.211Z"
+    },
+    {
+      "id": "18a646b8-8f3e-4bce-bcc7-1dd94fa2a1bf",
+      "project_id": "proj-cmgalaxy-01",
+      "requirement_id": "CMG-104",
+      "module": "Auth Service",
+      "feature": "Implement secure self-service password reset flow with 15min expiry",
+      "scenario": "Boundary limit validation for minimum and maximum allowed length",
+      "title": "Verify field behavior at exact minimum (N) and maximum allowed character limits (N_MAX)",
+      "preconditions": "User has access to input form.",
+      "test_data": "Min boundary: 1 char, Max boundary: 255 chars, Overflow: 256 chars",
+      "steps": [
+        "1. Enter input of exactly maximum permitted length (e.g. 255 characters)",
+        "2. Confirm acceptance and submit",
+        "3. Attempt to paste 256 characters into the field"
+      ],
+      "expected_result": "Field accepts exact boundary (255 chars); field prevents typing beyond limit or displays counter \"255/255 characters reached\".",
+      "priority": "P2-High",
+      "test_type": "Boundary",
+      "automation_candidate": true,
+      "notes": "Generated directly from Jira Issue CMG-104",
+      "status": "Approved",
+      "quality_score": 100,
+      "created_at": "2026-09-28T12:53:31.211Z",
+      "updated_at": "2026-09-28T12:53:31.211Z"
+    },
+    {
+      "id": "ce5660f1-a004-4660-89ad-70e2f3d25316",
+      "project_id": "proj-cmgalaxy-01",
+      "requirement_id": "CMG-104",
+      "module": "Auth Service",
+      "feature": "Implement secure self-service password reset flow with 15min expiry",
+      "scenario": "Input sanitization against Cross-Site Scripting (XSS) and SQL Injection payloads",
+      "title": "Verify system sanitizes or rejects malicious XSS script tags and SQL syntax",
+      "preconditions": "User is authenticated.",
+      "test_data": "<script>alert('XSS_TEST')</script> OR '1'='1' --",
+      "steps": [
+        "1. Enter malicious script payload into text inputs",
+        "2. Submit the form",
+        "3. View the rendered output on dashboard and verify DOM source"
+      ],
+      "expected_result": "Payload is HTML-encoded/sanitized; no JavaScript executes; SQL queries are parameterized safely.",
+      "priority": "P1-Critical",
+      "test_type": "Security",
+      "automation_candidate": true,
+      "notes": "Generated directly from Jira Issue CMG-104",
+      "status": "Approved",
+      "quality_score": 100,
+      "created_at": "2026-09-28T12:53:31.211Z",
+      "updated_at": "2026-09-28T12:53:31.211Z"
+    },
+    {
+      "id": "50f19ead-696d-4146-bbdb-b8859ef9ed49",
+      "project_id": "proj-cmgalaxy-01",
+      "requirement_id": "CMG-104",
+      "module": "Auth Service",
+      "feature": "Implement secure self-service password reset flow with 15min expiry",
+      "scenario": "Rapid multi-click submission idempotency check",
+      "title": "Verify rapid duplicate clicks on submit button do not create duplicate records",
+      "preconditions": "Form is filled with valid data.",
+      "test_data": "Valid submission data",
+      "steps": [
+        "1. Click the Submit button 3 times in rapid succession (< 200ms)",
+        "2. Monitor network panel requests and backend database records"
+      ],
+      "expected_result": "Submit button disables immediately upon first click with loading spinner; only 1 transaction is processed in backend; no duplicate entity created.",
+      "priority": "P2-High",
+      "test_type": "Integration",
+      "automation_candidate": true,
+      "notes": "Generated directly from Jira Issue CMG-104",
+      "status": "Approved",
+      "quality_score": 100,
+      "created_at": "2026-09-28T12:53:31.211Z",
+      "updated_at": "2026-09-28T12:53:31.211Z"
+    },
+    {
+      "id": "9692d38d-1f80-49a0-a48c-ac83d26f9d25",
+      "project_id": "proj-cmgalaxy-01",
+      "requirement_id": "CMG-104",
+      "module": "Auth Service",
+      "feature": "Implement secure self-service password reset flow with 15min expiry",
+      "scenario": "Session timeout and unauthorized direct URL access",
+      "title": "Verify unauthenticated or expired user is redirected to login with redirect_url preserved",
+      "preconditions": "User session cookie/token has expired or is cleared.",
+      "test_data": "Expired JWT token or cleared localStorage",
+      "steps": [
+        "1. Clear authentication token in browser storage",
+        "2. Attempt to navigate directly to Auth Service protected endpoint",
+        "3. Check network status and view navigation"
+      ],
+      "expected_result": "Request returns 401 Unauthorized; browser redirects to /login?redirect_to=Auth%20Service; no protected data is exposed.",
+      "priority": "P1-Critical",
+      "test_type": "Security",
+      "automation_candidate": true,
+      "notes": "Generated directly from Jira Issue CMG-104",
+      "status": "Approved",
+      "quality_score": 100,
+      "created_at": "2026-09-28T12:53:31.211Z",
+      "updated_at": "2026-09-28T12:53:31.211Z"
+    },
+    {
+      "id": "264debbc-2d18-4039-87a5-0ecde2845802",
+      "project_id": "proj-cmgalaxy-01",
+      "requirement_id": "CMG-104",
+      "module": "Auth Service",
+      "feature": "Implement secure self-service password reset flow with 15min expiry",
+      "scenario": "Graceful error handling when server returns 500 internal server error",
+      "title": "Verify UI displays user-friendly error dialog when API returns 500 error",
+      "preconditions": "API mock configured to respond with HTTP 500 Internal Server Error.",
+      "test_data": "Standard request triggered under server fault injection",
+      "steps": [
+        "1. Trigger action on Auth Service",
+        "2. Mock server response with HTTP 500 and payload { \"error\": \"Internal error\" }",
+        "3. Observe UI reaction"
+      ],
+      "expected_result": "UI catches error gracefully; shows message \"Something went wrong. Please try again\"; provides \"Retry\" button; user input is preserved in form.",
+      "priority": "P2-High",
+      "test_type": "Functional",
+      "automation_candidate": true,
+      "notes": "Generated directly from Jira Issue CMG-104",
+      "status": "Approved",
+      "quality_score": 100,
+      "created_at": "2026-09-28T12:53:31.211Z",
+      "updated_at": "2026-09-28T12:53:31.211Z"
+    },
+    {
+      "id": "80bf299e-fb8e-40d1-b44a-83084fabca1c",
+      "project_id": "proj-cmgalaxy-01",
+      "requirement_id": "CMG-104",
+      "module": "Auth Service",
+      "feature": "Implement secure self-service password reset flow with 15min expiry",
+      "scenario": "Responsive layout and touch target compliance across mobile and desktop",
+      "title": "Verify Auth Service layout renders correctly without horizontal scroll on mobile viewport (375px)",
+      "preconditions": "Browser devtools viewport set to 375x812 (iPhone 13/14).",
+      "test_data": "N/A",
+      "steps": [
+        "1. Open Auth Service on mobile viewport",
+        "2. Check navigation header, form inputs, button tap targets (min 44x44px)",
+        "3. Fill and submit action using touch interactions"
+      ],
+      "expected_result": "All elements wrap cleanly; zero horizontal overflow; buttons accessible and responsive.",
+      "priority": "P3-Medium",
+      "test_type": "Compatibility",
+      "automation_candidate": false,
+      "notes": "Generated directly from Jira Issue CMG-104",
+      "status": "Approved",
+      "quality_score": 100,
+      "created_at": "2026-09-28T12:53:31.211Z",
+      "updated_at": "2026-09-28T12:53:31.211Z"
     }
   ],
   "api_tests": [
@@ -3076,6 +3548,172 @@
       "postman_script": "pm.test(\"Status is 429 when rate limit tripped\", function () {\n    pm.response.to.have.status(429);\n    pm.expect(pm.response.headers.has(\"Retry-After\")).to.be.true;\n});",
       "created_at": "2026-09-28T11:54:50.716Z",
       "updated_at": "2026-09-28T11:54:50.716Z"
+    },
+    {
+      "id": "d32a3273-e82a-43fc-a760-b4c460f43a2f",
+      "project_id": "proj-cmgalaxy-01",
+      "api_test_id": "API-POST-001",
+      "method": "POST",
+      "endpoint": "/api/v1/campaigns",
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer {{valid_token}}"
+      },
+      "query_params": {},
+      "path_params": {},
+      "request_body": {
+        "name": "Growth Campaign",
+        "daily_budget": 100
+      },
+      "test_data": "Valid authorization and payload",
+      "expected_status_code": 201,
+      "expected_response": {
+        "status": "success",
+        "data": {}
+      },
+      "validation": "HTTP Status 201 Created, Response-Time < 500ms, Content-Type application/json, valid payload structure.",
+      "priority": "P1-Critical",
+      "postman_script": "pm.test(\"Status code is 201\", function () {\n    pm.response.to.have.status(201);\n});\npm.test(\"Response time is under 500ms\", function () {\n    pm.expect(pm.response.responseTime).to.be.below(500);\n});\npm.test(\"Header Content-Type contains application/json\", function () {\n    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\n});",
+      "created_at": "2026-09-28T12:53:30.422Z",
+      "updated_at": "2026-09-28T12:53:30.422Z"
+    },
+    {
+      "id": "804a3129-8873-4280-a7b8-2e3d4257e15b",
+      "project_id": "proj-cmgalaxy-01",
+      "api_test_id": "API-POST-002",
+      "method": "POST",
+      "endpoint": "/api/v1/campaigns",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "query_params": {},
+      "path_params": {},
+      "request_body": {
+        "name": "Growth Campaign",
+        "daily_budget": 100
+      },
+      "test_data": "Missing Authorization header",
+      "expected_status_code": 401,
+      "expected_response": {
+        "error": "UNAUTHORIZED",
+        "message": "Authentication required"
+      },
+      "validation": "Status code 401 Unauthorized, header WWW-Authenticate present, error body contains standard error code.",
+      "priority": "P1-Critical",
+      "postman_script": "pm.test(\"Status is 401 Unauthorized\", function () {\n    pm.response.to.have.status(401);\n});\npm.test(\"Error message is present\", function () {\n    var json = pm.response.json();\n    pm.expect(json.error).to.eql(\"UNAUTHORIZED\");\n});",
+      "created_at": "2026-09-28T12:53:30.422Z",
+      "updated_at": "2026-09-28T12:53:30.422Z"
+    },
+    {
+      "id": "59546ba0-9665-48e4-bcda-5b5aacba5970",
+      "project_id": "proj-cmgalaxy-01",
+      "api_test_id": "API-POST-003",
+      "method": "POST",
+      "endpoint": "/api/v1/campaigns",
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer {{read_only_token}}"
+      },
+      "query_params": {},
+      "path_params": {},
+      "request_body": {
+        "name": "Growth Campaign",
+        "daily_budget": 100
+      },
+      "test_data": "Token belongs to read-only user without edit/write privileges",
+      "expected_status_code": 403,
+      "expected_response": {
+        "error": "FORBIDDEN",
+        "message": "Insufficient role permissions"
+      },
+      "validation": "Status code 403 Forbidden; system prevents role escalation.",
+      "priority": "P2-High",
+      "postman_script": "pm.test(\"Status is 403 Forbidden\", function () {\n    pm.response.to.have.status(403);\n});",
+      "created_at": "2026-09-28T12:53:30.422Z",
+      "updated_at": "2026-09-28T12:53:30.422Z"
+    },
+    {
+      "id": "97d40c81-3f51-44b3-a50b-a108f0c3a4f5",
+      "project_id": "proj-cmgalaxy-01",
+      "api_test_id": "API-POST-004",
+      "method": "POST",
+      "endpoint": "/api/v1/campaigns",
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer {{valid_token}}"
+      },
+      "query_params": {},
+      "path_params": {},
+      "request_body": "{ \"malformed\": true, broken json }",
+      "test_data": "Syntactically invalid JSON payload",
+      "expected_status_code": 400,
+      "expected_response": {
+        "error": "BAD_REQUEST",
+        "message": "Malformed JSON payload"
+      },
+      "validation": "Status code 400 Bad Request; server does not crash or leak stack trace.",
+      "priority": "P2-High",
+      "postman_script": "pm.test(\"Status code is 400 Bad Request\", function () {\n    pm.response.to.have.status(400);\n});",
+      "created_at": "2026-09-28T12:53:30.422Z",
+      "updated_at": "2026-09-28T12:53:30.422Z"
+    },
+    {
+      "id": "0606f75e-0b4e-48fc-b6e3-8fa94dfa95f5",
+      "project_id": "proj-cmgalaxy-01",
+      "api_test_id": "API-POST-005",
+      "method": "POST",
+      "endpoint": "/api/v1/campaigns",
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer {{valid_token}}"
+      },
+      "query_params": {},
+      "path_params": {},
+      "request_body": {
+        "id": "NOT_AN_INTEGER",
+        "amount": "INVALID_STRING"
+      },
+      "test_data": "String passed to numeric fields",
+      "expected_status_code": 422,
+      "expected_response": {
+        "error": "VALIDATION_ERROR",
+        "fields": [
+          "amount"
+        ]
+      },
+      "validation": "Status code 422 Unprocessable Entity or 400 with granular field validation array.",
+      "priority": "P2-High",
+      "postman_script": "pm.test(\"Status is 422 or 400 validation error\", function () {\n    pm.expect([400, 422]).to.include(pm.response.code);\n});",
+      "created_at": "2026-09-28T12:53:30.422Z",
+      "updated_at": "2026-09-28T12:53:30.422Z"
+    },
+    {
+      "id": "004ae95f-249e-4775-8305-02735679df86",
+      "project_id": "proj-cmgalaxy-01",
+      "api_test_id": "API-POST-006",
+      "method": "POST",
+      "endpoint": "/api/v1/campaigns",
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer {{valid_token}}"
+      },
+      "query_params": {},
+      "path_params": {},
+      "request_body": {
+        "name": "Growth Campaign",
+        "daily_budget": 100
+      },
+      "test_data": "Submitting 50 concurrent requests in 1 second",
+      "expected_status_code": 429,
+      "expected_response": {
+        "error": "TOO_MANY_REQUESTS",
+        "message": "Rate limit exceeded"
+      },
+      "validation": "Status code 429 Too Many Requests; headers Retry-After or X-RateLimit-Reset are present.",
+      "priority": "P2-High",
+      "postman_script": "pm.test(\"Status is 429 when rate limit tripped\", function () {\n    pm.response.to.have.status(429);\n    pm.expect(pm.response.headers.has(\"Retry-After\")).to.be.true;\n});",
+      "created_at": "2026-09-28T12:53:30.422Z",
+      "updated_at": "2026-09-28T12:53:30.422Z"
     }
   ],
   "regression_tests": [
@@ -3216,6 +3854,26 @@
       "impact_type": "Direct impact",
       "created_at": "2026-09-28T11:54:51.011Z",
       "updated_at": "2026-09-28T11:54:51.011Z"
+    },
+    {
+      "id": "0c5d61da-7262-4a47-af84-b81b80a8151d",
+      "project_id": "proj-cmgalaxy-01",
+      "regression_id": "REG-BUG-008",
+      "affected_module": "Google Ads",
+      "related_requirement": "Defect-5e92eb76",
+      "scenario": "Prevent recurrence: Google Ads budget decimal rounding error overcharges client",
+      "steps": [
+        "1. Recreate the failure preconditions in Production",
+        "2. Execute reproduction steps: 1. Set campaign budget to $14.99\n2. Sync to Google Ads API\n3. Check invoice",
+        "3. Verify that the defect no longer occurs and Google Ads budget set to exactly 1499 micros without rounding up."
+      ],
+      "expected_result": "Google Ads budget set to exactly 1499 micros without rounding up.",
+      "priority": "P1-Critical",
+      "reason_for_regression": "Direct regression test protecting against recurrence of defect: \"Google Ads budget decimal rounding error overcharges client\".",
+      "classification": "Critical Regression",
+      "impact_type": "Direct impact",
+      "created_at": "2026-09-28T12:53:30.997Z",
+      "updated_at": "2026-09-28T12:53:30.997Z"
     }
   ],
   "bugs": [
@@ -3562,6 +4220,80 @@
       ],
       "created_at": "2026-09-28T11:54:50.986Z",
       "updated_at": "2026-09-28T11:54:50.986Z"
+    },
+    {
+      "id": "5e92eb76-8857-40de-a56c-330ae1a9f694",
+      "project_id": "proj-cmgalaxy-01",
+      "title": "Google Ads budget decimal rounding error overcharges client",
+      "description": "Google Ads budget decimal rounding error overcharges client",
+      "steps_to_reproduce": "1. Set campaign budget to $14.99\n2. Sync to Google Ads API\n3. Check invoice",
+      "expected_result": "Google Ads budget set to exactly 1499 micros without rounding up.",
+      "actual_result": "Budget rounded to $15.00, causing billing variance in daily audit.",
+      "affected_module": "Google Ads",
+      "environment": "Production",
+      "browser": "Chrome 128",
+      "device": "Desktop",
+      "build_version": "v2.4.1",
+      "analysis_result": {
+        "bug_summary": "Defect in Google Ads: \"Google Ads budget decimal rounding error overcharges client\". Actual state deviates from specification with symptom: Budget rounded to $15.00, causing billing variance in daily audit..",
+        "root_cause_hypothesis": "Probable race condition, unhandled async exception, or missing null-check in Google Ads event lifecycle when processing external state.",
+        "affected_module": "Google Ads",
+        "affected_functionality": "Event Dispatch & UI State Synchronization",
+        "reproduction_scenario": "Execute steps: 1. Set environment to Production; 2. Replicate 1. Set campaign budget to $14.99\n2. Sync to Google Ads API\n3. Check invoice...; 3. Observe divergence where actual outcome is \"Budget rounded to $15.00, causing billing variance in daily audit.\".",
+        "original_test_scenario": "Verify Google Ads functions properly under standard operational constraints.",
+        "regression_test_scenario": "Verify that after fixing \"Google Ads budget decimal rounding error overcharges client\", system strictly delivers expected outcome: \"Google Ads budget set to exactly 1499 micros without rounding up.\" under boundary error conditions.",
+        "negative_scenario": "Trigger error condition deliberately with invalid tokens/state and verify UI displays graceful fallback banner instead of freezing.",
+        "related_test_cases": [
+          "TC-CMG-001",
+          "TC-CMG-006"
+        ],
+        "risk_areas": [
+          "User workflow blockage due to silent state stalling",
+          "Inconsistent state between frontend client cache and database store"
+        ],
+        "suggested_additional_tests": [
+          "Automated retry circuit-breaker test",
+          "State persistence recovery test after browser reload"
+        ],
+        "regression_test_cases": [
+          {
+            "regression_id": "REG-BUG-897",
+            "affected_module": "Google Ads",
+            "related_requirement": "BugFix-Google Ads budge",
+            "scenario": "Prevent recurrence: Google Ads budget decimal rounding error overcharges client",
+            "steps": [
+              "1. Recreate the failure preconditions in Production",
+              "2. Execute reproduction steps: 1. Set campaign budget to $14.99\n2. Sync to Google Ads API\n3. Check invoice",
+              "3. Verify that the defect no longer occurs and Google Ads budget set to exactly 1499 micros without rounding up."
+            ],
+            "expected_result": "Google Ads budget set to exactly 1499 micros without rounding up.",
+            "priority": "P1-Critical",
+            "reason_for_regression": "Direct regression test protecting against recurrence of defect: \"Google Ads budget decimal rounding error overcharges client\".",
+            "classification": "Critical Regression",
+            "impact_type": "Direct impact"
+          }
+        ]
+      },
+      "regression_scenarios": [
+        {
+          "regression_id": "REG-BUG-897",
+          "affected_module": "Google Ads",
+          "related_requirement": "BugFix-Google Ads budge",
+          "scenario": "Prevent recurrence: Google Ads budget decimal rounding error overcharges client",
+          "steps": [
+            "1. Recreate the failure preconditions in Production",
+            "2. Execute reproduction steps: 1. Set campaign budget to $14.99\n2. Sync to Google Ads API\n3. Check invoice",
+            "3. Verify that the defect no longer occurs and Google Ads budget set to exactly 1499 micros without rounding up."
+          ],
+          "expected_result": "Google Ads budget set to exactly 1499 micros without rounding up.",
+          "priority": "P1-Critical",
+          "reason_for_regression": "Direct regression test protecting against recurrence of defect: \"Google Ads budget decimal rounding error overcharges client\".",
+          "classification": "Critical Regression",
+          "impact_type": "Direct impact"
+        }
+      ],
+      "created_at": "2026-09-28T12:53:30.934Z",
+      "updated_at": "2026-09-28T12:53:30.935Z"
     }
   ],
   "test_data_sets": [
@@ -3929,6 +4661,79 @@
       ],
       "created_at": "2026-09-28T11:54:50.888Z",
       "updated_at": "2026-09-28T11:54:50.888Z"
+    },
+    {
+      "id": "3c63e5b2-fc4c-4785-a57f-14dae269e716",
+      "project_id": "proj-cmgalaxy-01",
+      "name": "Phone Test Data Set (10 records)",
+      "field_name": "phone_number",
+      "data_type": "Phone",
+      "format": "RFC Compliant",
+      "quantity": 10,
+      "records": [
+        {
+          "id": 1,
+          "type": "valid",
+          "value": "+1-415-555-0191",
+          "note": "Standard clean valid record"
+        },
+        {
+          "id": 2,
+          "type": "valid",
+          "value": "+1-725-555-9857",
+          "note": "Realistic corporate value"
+        },
+        {
+          "id": 3,
+          "type": "boundary",
+          "value": "1234567",
+          "note": "Minimum valid constraint length"
+        },
+        {
+          "id": 4,
+          "type": "boundary",
+          "value": "+44-20-7946-0950-EXT-99999",
+          "note": "Maximum allowable threshold"
+        },
+        {
+          "id": 5,
+          "type": "invalid",
+          "value": "415555",
+          "note": "Missing required syntax components"
+        },
+        {
+          "id": 6,
+          "type": "invalid",
+          "value": "+1 (555) ABC-DEFG",
+          "note": "Forbidden character set injection"
+        },
+        {
+          "id": 7,
+          "type": "negative",
+          "value": "-4155551234",
+          "note": "Out of range / negative numeric value"
+        },
+        {
+          "id": 8,
+          "type": "negative",
+          "value": "javascript:alert(1)",
+          "note": "Sanitization attack string"
+        },
+        {
+          "id": 9,
+          "type": "random",
+          "value": "+1-304-555-7423",
+          "note": "random synthetic test point #9"
+        },
+        {
+          "id": 10,
+          "type": "realistic",
+          "value": "+1-737-555-6911",
+          "note": "realistic synthetic test point #10"
+        }
+      ],
+      "created_at": "2026-09-28T12:53:30.742Z",
+      "updated_at": "2026-09-28T12:53:30.742Z"
     }
   ],
   "coverage_records": [
@@ -4004,14 +4809,22 @@
         "62e70e34-d72d-4577-8c80-b6de673ed807",
         "f4d14620-4aea-4eef-82c7-94a04376c671",
         "5b1ff468-f385-4537-8cdb-c5c337aebf0d",
-        "f85274fc-c805-4f5e-bdec-be0641e10eba"
+        "f85274fc-c805-4f5e-bdec-be0641e10eba",
+        "9be8dac6-4e9c-400f-a5c0-d7bea1a175ca",
+        "f4ab4c69-e716-490d-9982-2634b7854f1a",
+        "54e3b789-21b5-4bf9-826c-fc5dd5683185",
+        "b1ba825f-a7b2-4e85-b27b-a0a63724f1ef",
+        "da4c9457-e375-4103-b5bf-ff0599c85ff2",
+        "22927465-6427-4295-98d9-1e0dca36d6d7",
+        "e401e983-b4db-4cc2-ab47-46bdc90f7da3",
+        "785421b7-8028-4be9-8aee-ef515e86eed4"
       ],
       "coverage_status": "Complete",
       "coverage_percentage": 100,
       "missing_coverage": "Exhaustive test coverage across positive, negative, and edge cases.",
       "risk": "Low",
       "created_at": "2026-09-28T11:45:59.529Z",
-      "updated_at": "2026-09-28T11:54:50.615Z"
+      "updated_at": "2026-09-28T12:53:30.249Z"
     }
   ],
   "ai_generations": [
@@ -7339,6 +8152,784 @@
       "execution_time_ms": 1,
       "created_at": "2026-09-28T11:54:51.080Z",
       "updated_at": "2026-09-28T11:54:51.080Z"
+    },
+    {
+      "id": "51f394c4-f82f-4eff-a618-fb73836e9dc1",
+      "project_id": "proj-cmgalaxy-01",
+      "feature": "Requirement Analysis",
+      "input_type": "Text / Jira Story",
+      "input_payload": "As a campaign analyst, I want to filter ad reports by date range and campaign tag so that I can evaluate ROAS.",
+      "generated_output": {
+        "summary": "Structured requirement specification for \"filter ad reports by date range and campaign tag\" on CMGalaxy, defining workflow parameters, validation constraints, and security standards.",
+        "actors": [
+          "Campaign analyst",
+          "System Administrator",
+          "API Client / Backend Service"
+        ],
+        "preconditions": [
+          "User account is provisioned with active status in CMGalaxy",
+          "Network connectivity is established and API gateway is healthy"
+        ],
+        "business_rules": [
+          "All user inputs must be sanitized against SQLi and XSS before persistence",
+          "State transitions must be atomic and committed to PostgreSQL with audit trail",
+          "Pagination default to 20 items per page with max ceiling of 100"
+        ],
+        "functional_requirements": [
+          "Render accessible UI elements enabling campaign analyst to filter ad reports by date range and campaign tag",
+          "Perform instantaneous client-side validation on all mandatory input controls",
+          "Persist modified state and return standardized JSON payload with timestamp",
+          "Provide contextual toast notifications upon success or validation errors"
+        ],
+        "non_functional_considerations": [
+          "P95 response time under 400ms under standard operational load",
+          "TLS 1.3 encryption in transit and AES-256 at rest for sensitive attributes",
+          "WCAG 2.1 AA accessibility compliance including keyboard tab navigation",
+          "Idempotent API processing to avoid duplicate transactions on network retry"
+        ],
+        "acceptance_criteria": [
+          "AC-1: campaign analyst can successfully execute: \"filter ad reports by date range and campaign tag\" when valid inputs are supplied",
+          "AC-2: Submitting empty, malformed, or boundary-violating inputs renders clear inline field errors",
+          "AC-3: System displays actionable loading indicator while backend processing is underway",
+          "AC-4: Unauthorized access attempts are rejected with HTTP 401/403 and redirected to login",
+          "AC-5: Network disruptions display a graceful retry prompt without loss of entered form data"
+        ],
+        "ambiguities": [
+          "Unclear what exact error message should be displayed if downstream dependencies fail or time out",
+          "Unspecified whether mobile viewport requires a specialized simplified card layout versus full table",
+          "Audit logging requirements not explicitly specified for compliance tracking"
+        ],
+        "missing_information": [
+          "Specific role-based access permissions (RBAC) required for different team tiers",
+          "Telemetry and analytics event names to fire for data funnel tracking",
+          "Internationalization (i18n) / localization requirements for non-English users"
+        ],
+        "dependencies": [
+          "CMGalaxy Core API Service",
+          "PostgreSQL Primary Datastore",
+          "Redis Distributed Cache & Rate Limiting Cluster"
+        ],
+        "risks": [
+          "Concurrent updates causing race conditions and inconsistent state",
+          "Third-party external gateway latency causing user session timeouts",
+          "Incomplete input sanitization leading to potential injection vulnerabilities"
+        ],
+        "testable_conditions": [
+          "Boundary value testing on minimum and maximum input lengths",
+          "Simultaneous double-clicking on submit button (race condition / idempotency check)",
+          "Submitting special Unicode, UTF-8 emoji, and HTML script characters",
+          "Network throttling simulation (Slow 3G, offline recovery)"
+        ]
+      },
+      "user_id": "usr-lead-001",
+      "user_name": "Sarah Jenkins",
+      "ai_model": "Heuristic QA Intelligence Engine v2.4",
+      "prompt_version": "v1.2.0",
+      "execution_time_ms": 2,
+      "created_at": "2026-09-28T12:53:29.896Z",
+      "updated_at": "2026-09-28T12:53:29.896Z"
+    },
+    {
+      "id": "9176645c-54fb-411b-b455-1f5c5dc3ae9d",
+      "project_id": "proj-cmgalaxy-01",
+      "feature": "Test Case Generation",
+      "input_type": "Requirement: REQ-AUTO",
+      "input_payload": "As a user, I want to upload a CSV file with max 10MB to import campaign leads.",
+      "generated_output": [
+        {
+          "test_case_id": "TC-CAM-001",
+          "requirement_id": "REQ-AUTO",
+          "module": "Campaign",
+          "feature": "Lead CSV Import",
+          "scenario": "Verify standard successful execution of upload a CSV file with max 10MB to import campaign leads",
+          "title": "Verify user can successfully upload a CSV file with max 10MB to import campaign leads with valid inputs",
+          "preconditions": "User is authenticated with valid credentials; module Campaign is accessible.",
+          "test_data": "Standard valid payload with clean alphanumeric characters",
+          "steps": [
+            "1. Navigate to Campaign interface",
+            "2. Fill in all required fields with valid input parameters",
+            "3. Click the primary submission/action button",
+            "4. Inspect the updated view and confirmation feedback"
+          ],
+          "expected_result": "Action completes successfully; database updates state; success toast is displayed; no console errors.",
+          "priority": "P1-Critical",
+          "test_type": "Functional",
+          "automation_candidate": true,
+          "notes": "Primary happy path; baseline candidate for CI/CD smoke test suite."
+        },
+        {
+          "test_case_id": "TC-CAM-002",
+          "requirement_id": "REQ-AUTO",
+          "module": "Campaign",
+          "feature": "Lead CSV Import",
+          "scenario": "Validation failure when required fields are submitted empty",
+          "title": "Verify inline validation error when required fields are left blank",
+          "preconditions": "User is on the Campaign form.",
+          "test_data": "All mandatory fields set to empty string \"\"",
+          "steps": [
+            "1. Clear all inputs on the Campaign form",
+            "2. Attempt to submit by clicking submit button",
+            "3. Observe input field highlights and validation messages"
+          ],
+          "expected_result": "Form submission is blocked; mandatory inputs are highlighted in red; specific helper text \"This field is required\" is displayed.",
+          "priority": "P2-High",
+          "test_type": "Negative",
+          "automation_candidate": true,
+          "notes": "Client-side and server-side validation integrity verification."
+        },
+        {
+          "test_case_id": "TC-CAM-003",
+          "requirement_id": "REQ-AUTO",
+          "module": "Campaign",
+          "feature": "Lead CSV Import",
+          "scenario": "Boundary limit validation for minimum and maximum allowed length",
+          "title": "Verify field behavior at exact minimum (N) and maximum allowed character limits (N_MAX)",
+          "preconditions": "User has access to input form.",
+          "test_data": "Min boundary: 1 char, Max boundary: 255 chars, Overflow: 256 chars",
+          "steps": [
+            "1. Enter input of exactly maximum permitted length (e.g. 255 characters)",
+            "2. Confirm acceptance and submit",
+            "3. Attempt to paste 256 characters into the field"
+          ],
+          "expected_result": "Field accepts exact boundary (255 chars); field prevents typing beyond limit or displays counter \"255/255 characters reached\".",
+          "priority": "P2-High",
+          "test_type": "Boundary",
+          "automation_candidate": true,
+          "notes": "Checks database schema constraint alignment and UI truncation."
+        },
+        {
+          "test_case_id": "TC-CAM-004",
+          "requirement_id": "REQ-AUTO",
+          "module": "Campaign",
+          "feature": "Lead CSV Import",
+          "scenario": "Input sanitization against Cross-Site Scripting (XSS) and SQL Injection payloads",
+          "title": "Verify system sanitizes or rejects malicious XSS script tags and SQL syntax",
+          "preconditions": "User is authenticated.",
+          "test_data": "<script>alert('XSS_TEST')</script> OR '1'='1' --",
+          "steps": [
+            "1. Enter malicious script payload into text inputs",
+            "2. Submit the form",
+            "3. View the rendered output on dashboard and verify DOM source"
+          ],
+          "expected_result": "Payload is HTML-encoded/sanitized; no JavaScript executes; SQL queries are parameterized safely.",
+          "priority": "P1-Critical",
+          "test_type": "Security",
+          "automation_candidate": true,
+          "notes": "Critical security regression test for OWASP Top 10 vulnerabilities."
+        },
+        {
+          "test_case_id": "TC-CAM-005",
+          "requirement_id": "REQ-AUTO",
+          "module": "Campaign",
+          "feature": "Lead CSV Import",
+          "scenario": "Rapid multi-click submission idempotency check",
+          "title": "Verify rapid duplicate clicks on submit button do not create duplicate records",
+          "preconditions": "Form is filled with valid data.",
+          "test_data": "Valid submission data",
+          "steps": [
+            "1. Click the Submit button 3 times in rapid succession (< 200ms)",
+            "2. Monitor network panel requests and backend database records"
+          ],
+          "expected_result": "Submit button disables immediately upon first click with loading spinner; only 1 transaction is processed in backend; no duplicate entity created.",
+          "priority": "P2-High",
+          "test_type": "Integration",
+          "automation_candidate": true,
+          "notes": "Idempotency key or UI button debouncing validation."
+        },
+        {
+          "test_case_id": "TC-CAM-006",
+          "requirement_id": "REQ-AUTO",
+          "module": "Campaign",
+          "feature": "Lead CSV Import",
+          "scenario": "Session timeout and unauthorized direct URL access",
+          "title": "Verify unauthenticated or expired user is redirected to login with redirect_url preserved",
+          "preconditions": "User session cookie/token has expired or is cleared.",
+          "test_data": "Expired JWT token or cleared localStorage",
+          "steps": [
+            "1. Clear authentication token in browser storage",
+            "2. Attempt to navigate directly to Campaign protected endpoint",
+            "3. Check network status and view navigation"
+          ],
+          "expected_result": "Request returns 401 Unauthorized; browser redirects to /login?redirect_to=Campaign; no protected data is exposed.",
+          "priority": "P1-Critical",
+          "test_type": "Security",
+          "automation_candidate": true,
+          "notes": "Authentication gatekeeper verification."
+        },
+        {
+          "test_case_id": "TC-CAM-007",
+          "requirement_id": "REQ-AUTO",
+          "module": "Campaign",
+          "feature": "Lead CSV Import",
+          "scenario": "Graceful error handling when server returns 500 internal server error",
+          "title": "Verify UI displays user-friendly error dialog when API returns 500 error",
+          "preconditions": "API mock configured to respond with HTTP 500 Internal Server Error.",
+          "test_data": "Standard request triggered under server fault injection",
+          "steps": [
+            "1. Trigger action on Campaign",
+            "2. Mock server response with HTTP 500 and payload { \"error\": \"Internal error\" }",
+            "3. Observe UI reaction"
+          ],
+          "expected_result": "UI catches error gracefully; shows message \"Something went wrong. Please try again\"; provides \"Retry\" button; user input is preserved in form.",
+          "priority": "P2-High",
+          "test_type": "Functional",
+          "automation_candidate": true,
+          "notes": "Resilience and user experience recovery testing."
+        },
+        {
+          "test_case_id": "TC-CAM-008",
+          "requirement_id": "REQ-AUTO",
+          "module": "Campaign",
+          "feature": "Lead CSV Import",
+          "scenario": "Responsive layout and touch target compliance across mobile and desktop",
+          "title": "Verify Campaign layout renders correctly without horizontal scroll on mobile viewport (375px)",
+          "preconditions": "Browser devtools viewport set to 375x812 (iPhone 13/14).",
+          "test_data": "N/A",
+          "steps": [
+            "1. Open Campaign on mobile viewport",
+            "2. Check navigation header, form inputs, button tap targets (min 44x44px)",
+            "3. Fill and submit action using touch interactions"
+          ],
+          "expected_result": "All elements wrap cleanly; zero horizontal overflow; buttons accessible and responsive.",
+          "priority": "P3-Medium",
+          "test_type": "Compatibility",
+          "automation_candidate": false,
+          "notes": "Cross-device visual regression inspection."
+        }
+      ],
+      "user_id": "usr-lead-001",
+      "user_name": "Sarah Jenkins",
+      "ai_model": "Heuristic QA Intelligence Engine v2.4",
+      "prompt_version": "v1.3.0",
+      "execution_time_ms": 1,
+      "created_at": "2026-09-28T12:53:30.137Z",
+      "updated_at": "2026-09-28T12:53:30.137Z"
+    },
+    {
+      "id": "a1c9ba13-7ab5-48f2-9d92-22aa176fdc31",
+      "project_id": "proj-cmgalaxy-01",
+      "feature": "API Test Generation",
+      "input_type": "POST /api/v1/campaigns",
+      "input_payload": "{\"projectId\":\"proj-cmgalaxy-01\",\"method\":\"POST\",\"endpoint\":\"/api/v1/campaigns\",\"headers\":{\"Content-Type\":\"application/json\"},\"query_params\":{},\"path_params\":{},\"request_body\":{\"name\":\"Growth Campaign\",\"daily_budget\":100},\"auth\":\"Bearer Token\",\"expected_status_code\":201,\"expected_response\":{}}",
+      "generated_output": [
+        {
+          "api_test_id": "API-POST-001",
+          "method": "POST",
+          "endpoint": "/api/v1/campaigns",
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{valid_token}}"
+          },
+          "query_params": {},
+          "path_params": {},
+          "request_body": {
+            "name": "Growth Campaign",
+            "daily_budget": 100
+          },
+          "test_data": "Valid authorization and payload",
+          "expected_status_code": 201,
+          "expected_response": {
+            "status": "success",
+            "data": {}
+          },
+          "validation": "HTTP Status 201 Created, Response-Time < 500ms, Content-Type application/json, valid payload structure.",
+          "priority": "P1-Critical",
+          "postman_script": "pm.test(\"Status code is 201\", function () {\n    pm.response.to.have.status(201);\n});\npm.test(\"Response time is under 500ms\", function () {\n    pm.expect(pm.response.responseTime).to.be.below(500);\n});\npm.test(\"Header Content-Type contains application/json\", function () {\n    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\n});"
+        },
+        {
+          "api_test_id": "API-POST-002",
+          "method": "POST",
+          "endpoint": "/api/v1/campaigns",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "query_params": {},
+          "path_params": {},
+          "request_body": {
+            "name": "Growth Campaign",
+            "daily_budget": 100
+          },
+          "test_data": "Missing Authorization header",
+          "expected_status_code": 401,
+          "expected_response": {
+            "error": "UNAUTHORIZED",
+            "message": "Authentication required"
+          },
+          "validation": "Status code 401 Unauthorized, header WWW-Authenticate present, error body contains standard error code.",
+          "priority": "P1-Critical",
+          "postman_script": "pm.test(\"Status is 401 Unauthorized\", function () {\n    pm.response.to.have.status(401);\n});\npm.test(\"Error message is present\", function () {\n    var json = pm.response.json();\n    pm.expect(json.error).to.eql(\"UNAUTHORIZED\");\n});"
+        },
+        {
+          "api_test_id": "API-POST-003",
+          "method": "POST",
+          "endpoint": "/api/v1/campaigns",
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{read_only_token}}"
+          },
+          "query_params": {},
+          "path_params": {},
+          "request_body": {
+            "name": "Growth Campaign",
+            "daily_budget": 100
+          },
+          "test_data": "Token belongs to read-only user without edit/write privileges",
+          "expected_status_code": 403,
+          "expected_response": {
+            "error": "FORBIDDEN",
+            "message": "Insufficient role permissions"
+          },
+          "validation": "Status code 403 Forbidden; system prevents role escalation.",
+          "priority": "P2-High",
+          "postman_script": "pm.test(\"Status is 403 Forbidden\", function () {\n    pm.response.to.have.status(403);\n});"
+        },
+        {
+          "api_test_id": "API-POST-004",
+          "method": "POST",
+          "endpoint": "/api/v1/campaigns",
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{valid_token}}"
+          },
+          "query_params": {},
+          "path_params": {},
+          "request_body": "{ \"malformed\": true, broken json }",
+          "test_data": "Syntactically invalid JSON payload",
+          "expected_status_code": 400,
+          "expected_response": {
+            "error": "BAD_REQUEST",
+            "message": "Malformed JSON payload"
+          },
+          "validation": "Status code 400 Bad Request; server does not crash or leak stack trace.",
+          "priority": "P2-High",
+          "postman_script": "pm.test(\"Status code is 400 Bad Request\", function () {\n    pm.response.to.have.status(400);\n});"
+        },
+        {
+          "api_test_id": "API-POST-005",
+          "method": "POST",
+          "endpoint": "/api/v1/campaigns",
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{valid_token}}"
+          },
+          "query_params": {},
+          "path_params": {},
+          "request_body": {
+            "id": "NOT_AN_INTEGER",
+            "amount": "INVALID_STRING"
+          },
+          "test_data": "String passed to numeric fields",
+          "expected_status_code": 422,
+          "expected_response": {
+            "error": "VALIDATION_ERROR",
+            "fields": [
+              "amount"
+            ]
+          },
+          "validation": "Status code 422 Unprocessable Entity or 400 with granular field validation array.",
+          "priority": "P2-High",
+          "postman_script": "pm.test(\"Status is 422 or 400 validation error\", function () {\n    pm.expect([400, 422]).to.include(pm.response.code);\n});"
+        },
+        {
+          "api_test_id": "API-POST-006",
+          "method": "POST",
+          "endpoint": "/api/v1/campaigns",
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer {{valid_token}}"
+          },
+          "query_params": {},
+          "path_params": {},
+          "request_body": {
+            "name": "Growth Campaign",
+            "daily_budget": 100
+          },
+          "test_data": "Submitting 50 concurrent requests in 1 second",
+          "expected_status_code": 429,
+          "expected_response": {
+            "error": "TOO_MANY_REQUESTS",
+            "message": "Rate limit exceeded"
+          },
+          "validation": "Status code 429 Too Many Requests; headers Retry-After or X-RateLimit-Reset are present.",
+          "priority": "P2-High",
+          "postman_script": "pm.test(\"Status is 429 when rate limit tripped\", function () {\n    pm.response.to.have.status(429);\n    pm.expect(pm.response.headers.has(\"Retry-After\")).to.be.true;\n});"
+        }
+      ],
+      "user_id": "usr-lead-001",
+      "user_name": "Sarah Jenkins",
+      "ai_model": "Heuristic QA Intelligence Engine v2.4",
+      "prompt_version": "v1.2.0",
+      "execution_time_ms": 0,
+      "created_at": "2026-09-28T12:53:30.366Z",
+      "updated_at": "2026-09-28T12:53:30.366Z"
+    },
+    {
+      "id": "fc0af4cc-e2bc-4141-adb5-9d22d71dacad",
+      "project_id": "proj-cmgalaxy-01",
+      "feature": "Edge Case Analysis",
+      "input_type": "Requirement & Existing Tests",
+      "input_payload": "Users can submit promo discount codes at checkout.",
+      "generated_output": [
+        {
+          "missing_scenario": "Unicode & Emoji Handling in Text Fields",
+          "category": "Data Integrity",
+          "why_it_matters": "Strings containing 4-byte UTF-8 emojis (e.g. 🚀, 💡) or non-Latin alphabets (Arabic, Cyrillic, Kanji) can cause database truncation or SQL crashes in MySQL/Postgres UTF8 vs UTF8MB4 encodings.",
+          "suggested_test_case": "Input \"Test Campaign 🚀 2026 ñ å 测试\" into text fields, persist, and verify exact byte-for-byte retrieval on view screens.",
+          "risk_level": "Medium"
+        },
+        {
+          "missing_scenario": "Zero / Null / Empty Value Submissions",
+          "category": "Boundary",
+          "why_it_matters": "Frontend may send null, empty string \"\", undefined, or omit the key entirely. Inconsistent backend handling can throw NullPointerExceptions.",
+          "suggested_test_case": "Send payload with keys explicitly mapped to null, empty string, and whitespace \"   \". Verify uniform validation response.",
+          "risk_level": "High"
+        },
+        {
+          "missing_scenario": "Concurrent Update Race Conditions (Lost Updates)",
+          "category": "Concurrency",
+          "why_it_matters": "Two users simultaneously modifying the same record will overwrite each other unless optimistic locking or version tags are checked.",
+          "suggested_test_case": "Open two browser tabs on the same record; edit in Tab 1 and save; then edit in Tab 2 and save without refreshing. Tab 2 should receive conflict warning (HTTP 409 Conflict).",
+          "risk_level": "High"
+        },
+        {
+          "missing_scenario": "Sudden Network Drop During Async Transaction",
+          "category": "Network",
+          "why_it_matters": "If client Wi-Fi disconnects after request is dispatched but before response arrives, user may click submit again, generating duplicate transactions or billing.",
+          "suggested_test_case": "Throttle network to offline 200ms after clicking submit; verify client recovers gracefully and transaction idempotency key prevents re-execution.",
+          "risk_level": "High"
+        },
+        {
+          "missing_scenario": "Session Expiry While User Is Typing in Long Form",
+          "category": "Session",
+          "why_it_matters": "If JWT expires while user spends 20 minutes drafting content, submitting the form will discard all drafted text on redirect to login.",
+          "suggested_test_case": "Let token expire while form is filled; click submit; verify app prompts for re-authentication in modal or stores draft in localStorage without wiping inputs.",
+          "risk_level": "Medium"
+        },
+        {
+          "missing_scenario": "Extreme Boundary Values for Numeric & Date Fields",
+          "category": "Boundary",
+          "why_it_matters": "Values like 0, -1, 999999999999, fractional pennies (0.0001), or leap years (Feb 29) can cause floating point calculation errors.",
+          "suggested_test_case": "Input maximum 64-bit integer values, negative numbers, and leap year dates into respective inputs.",
+          "risk_level": "Medium"
+        }
+      ],
+      "user_id": "usr-lead-001",
+      "user_name": "Sarah Jenkins",
+      "ai_model": "Heuristic QA Intelligence Engine v2.4",
+      "prompt_version": "v1.2.0",
+      "execution_time_ms": 0,
+      "created_at": "2026-09-28T12:53:30.554Z",
+      "updated_at": "2026-09-28T12:53:30.554Z"
+    },
+    {
+      "id": "0f611f71-7719-4a41-aef6-a7b418584a64",
+      "project_id": "proj-cmgalaxy-01",
+      "feature": "Test Data Generation",
+      "input_type": "phone_number (Phone) - Count: 10",
+      "input_payload": "{\"projectId\":\"proj-cmgalaxy-01\",\"field_name\":\"phone_number\",\"data_type\":\"Phone\",\"format\":\"RFC Compliant\",\"quantity\":10,\"business_rules\":\"Standard validation\"}",
+      "generated_output": {
+        "field_name": "phone_number",
+        "data_type": "Phone",
+        "records": [
+          {
+            "id": 1,
+            "type": "valid",
+            "value": "+1-415-555-0191",
+            "note": "Standard clean valid record"
+          },
+          {
+            "id": 2,
+            "type": "valid",
+            "value": "+1-725-555-9857",
+            "note": "Realistic corporate value"
+          },
+          {
+            "id": 3,
+            "type": "boundary",
+            "value": "1234567",
+            "note": "Minimum valid constraint length"
+          },
+          {
+            "id": 4,
+            "type": "boundary",
+            "value": "+44-20-7946-0950-EXT-99999",
+            "note": "Maximum allowable threshold"
+          },
+          {
+            "id": 5,
+            "type": "invalid",
+            "value": "415555",
+            "note": "Missing required syntax components"
+          },
+          {
+            "id": 6,
+            "type": "invalid",
+            "value": "+1 (555) ABC-DEFG",
+            "note": "Forbidden character set injection"
+          },
+          {
+            "id": 7,
+            "type": "negative",
+            "value": "-4155551234",
+            "note": "Out of range / negative numeric value"
+          },
+          {
+            "id": 8,
+            "type": "negative",
+            "value": "javascript:alert(1)",
+            "note": "Sanitization attack string"
+          },
+          {
+            "id": 9,
+            "type": "random",
+            "value": "+1-304-555-7423",
+            "note": "random synthetic test point #9"
+          },
+          {
+            "id": 10,
+            "type": "realistic",
+            "value": "+1-737-555-6911",
+            "note": "realistic synthetic test point #10"
+          }
+        ]
+      },
+      "user_id": "usr-lead-001",
+      "user_name": "Sarah Jenkins",
+      "ai_model": "Heuristic QA Intelligence Engine v2.4",
+      "prompt_version": "v1.1.0",
+      "execution_time_ms": 1,
+      "created_at": "2026-09-28T12:53:30.679Z",
+      "updated_at": "2026-09-28T12:53:30.679Z"
+    },
+    {
+      "id": "c45049d1-d40b-4aec-9749-edccd54a354e",
+      "project_id": "proj-cmgalaxy-01",
+      "feature": "Bug Analysis & Regression",
+      "input_type": "Defect: Google Ads budget decimal rounding error overcharges client",
+      "input_payload": "{\"projectId\":\"proj-cmgalaxy-01\",\"title\":\"Google Ads budget decimal rounding error overcharges client\",\"description\":\"Google Ads budget decimal rounding error overcharges client\",\"steps_to_reproduce\":\"1. Set campaign budget to $14.99\\n2. Sync to Google Ads API\\n3. Check invoice\",\"expected_result\":\"Google Ads budget set to exactly 1499 micros without rounding up.\",\"actual_result\":\"Budget rounded to $15.00, causing billing variance in daily audit.\",\"affected_module\":\"Google Ads\",\"environment\":\"Prod",
+      "generated_output": {
+        "bug_summary": "Defect in Google Ads: \"Google Ads budget decimal rounding error overcharges client\". Actual state deviates from specification with symptom: Budget rounded to $15.00, causing billing variance in daily audit..",
+        "root_cause_hypothesis": "Probable race condition, unhandled async exception, or missing null-check in Google Ads event lifecycle when processing external state.",
+        "affected_module": "Google Ads",
+        "affected_functionality": "Event Dispatch & UI State Synchronization",
+        "reproduction_scenario": "Execute steps: 1. Set environment to Production; 2. Replicate 1. Set campaign budget to $14.99\n2. Sync to Google Ads API\n3. Check invoice...; 3. Observe divergence where actual outcome is \"Budget rounded to $15.00, causing billing variance in daily audit.\".",
+        "original_test_scenario": "Verify Google Ads functions properly under standard operational constraints.",
+        "regression_test_scenario": "Verify that after fixing \"Google Ads budget decimal rounding error overcharges client\", system strictly delivers expected outcome: \"Google Ads budget set to exactly 1499 micros without rounding up.\" under boundary error conditions.",
+        "negative_scenario": "Trigger error condition deliberately with invalid tokens/state and verify UI displays graceful fallback banner instead of freezing.",
+        "related_test_cases": [
+          "TC-CMG-001",
+          "TC-CMG-006"
+        ],
+        "risk_areas": [
+          "User workflow blockage due to silent state stalling",
+          "Inconsistent state between frontend client cache and database store"
+        ],
+        "suggested_additional_tests": [
+          "Automated retry circuit-breaker test",
+          "State persistence recovery test after browser reload"
+        ],
+        "regression_test_cases": [
+          {
+            "regression_id": "REG-BUG-897",
+            "affected_module": "Google Ads",
+            "related_requirement": "BugFix-Google Ads budge",
+            "scenario": "Prevent recurrence: Google Ads budget decimal rounding error overcharges client",
+            "steps": [
+              "1. Recreate the failure preconditions in Production",
+              "2. Execute reproduction steps: 1. Set campaign budget to $14.99\n2. Sync to Google Ads API\n3. Check invoice",
+              "3. Verify that the defect no longer occurs and Google Ads budget set to exactly 1499 micros without rounding up."
+            ],
+            "expected_result": "Google Ads budget set to exactly 1499 micros without rounding up.",
+            "priority": "P1-Critical",
+            "reason_for_regression": "Direct regression test protecting against recurrence of defect: \"Google Ads budget decimal rounding error overcharges client\".",
+            "classification": "Critical Regression",
+            "impact_type": "Direct impact"
+          }
+        ]
+      },
+      "user_id": "usr-lead-001",
+      "user_name": "Sarah Jenkins",
+      "ai_model": "Heuristic QA Intelligence Engine v2.4",
+      "prompt_version": "v1.2.0",
+      "execution_time_ms": 1,
+      "created_at": "2026-09-28T12:53:30.879Z",
+      "updated_at": "2026-09-28T12:53:30.879Z"
+    },
+    {
+      "id": "76a48b19-8ed2-4192-a399-82c9fba13fc7",
+      "project_id": "proj-cmgalaxy-01",
+      "feature": "Test Case Generation",
+      "input_type": "Requirement: CMG-104",
+      "input_payload": "Jira Ticket: [CMG-104] Implement secure self-service password reset flow with 15min expiry\nDescription:\nWe need to implement a secure password reset flow using single-use 15min tokens as outlined in Security PRD v2. Rate limiting must prevent brute-force attacks.\n\nAcceptance Criteria:\n1. User receives email with token within 60s\n2. Token expires after 15 minutes\n3. Token is invalidated on first use\n4. Password complexity strictly enforced\n5. Max 3 requests/hour per email\n\nPriority: High | Compon",
+      "generated_output": [
+        {
+          "test_case_id": "TC-AUT-001",
+          "requirement_id": "CMG-104",
+          "module": "Auth Service",
+          "feature": "Implement secure self-service password reset flow with 15min expiry",
+          "scenario": "Verify standard successful execution of perform system action",
+          "title": "Verify End User can successfully perform system action with valid inputs",
+          "preconditions": "User is authenticated with valid credentials; module Auth Service is accessible.",
+          "test_data": "Standard valid payload with clean alphanumeric characters",
+          "steps": [
+            "1. Navigate to Auth Service interface",
+            "2. Fill in all required fields with valid input parameters",
+            "3. Click the primary submission/action button",
+            "4. Inspect the updated view and confirmation feedback"
+          ],
+          "expected_result": "Action completes successfully; database updates state; success toast is displayed; no console errors.",
+          "priority": "P1-Critical",
+          "test_type": "Functional",
+          "automation_candidate": true,
+          "notes": "Primary happy path; baseline candidate for CI/CD smoke test suite."
+        },
+        {
+          "test_case_id": "TC-AUT-002",
+          "requirement_id": "CMG-104",
+          "module": "Auth Service",
+          "feature": "Implement secure self-service password reset flow with 15min expiry",
+          "scenario": "Validation failure when required fields are submitted empty",
+          "title": "Verify inline validation error when required fields are left blank",
+          "preconditions": "User is on the Auth Service form.",
+          "test_data": "All mandatory fields set to empty string \"\"",
+          "steps": [
+            "1. Clear all inputs on the Auth Service form",
+            "2. Attempt to submit by clicking submit button",
+            "3. Observe input field highlights and validation messages"
+          ],
+          "expected_result": "Form submission is blocked; mandatory inputs are highlighted in red; specific helper text \"This field is required\" is displayed.",
+          "priority": "P2-High",
+          "test_type": "Negative",
+          "automation_candidate": true,
+          "notes": "Client-side and server-side validation integrity verification."
+        },
+        {
+          "test_case_id": "TC-AUT-003",
+          "requirement_id": "CMG-104",
+          "module": "Auth Service",
+          "feature": "Implement secure self-service password reset flow with 15min expiry",
+          "scenario": "Boundary limit validation for minimum and maximum allowed length",
+          "title": "Verify field behavior at exact minimum (N) and maximum allowed character limits (N_MAX)",
+          "preconditions": "User has access to input form.",
+          "test_data": "Min boundary: 1 char, Max boundary: 255 chars, Overflow: 256 chars",
+          "steps": [
+            "1. Enter input of exactly maximum permitted length (e.g. 255 characters)",
+            "2. Confirm acceptance and submit",
+            "3. Attempt to paste 256 characters into the field"
+          ],
+          "expected_result": "Field accepts exact boundary (255 chars); field prevents typing beyond limit or displays counter \"255/255 characters reached\".",
+          "priority": "P2-High",
+          "test_type": "Boundary",
+          "automation_candidate": true,
+          "notes": "Checks database schema constraint alignment and UI truncation."
+        },
+        {
+          "test_case_id": "TC-AUT-004",
+          "requirement_id": "CMG-104",
+          "module": "Auth Service",
+          "feature": "Implement secure self-service password reset flow with 15min expiry",
+          "scenario": "Input sanitization against Cross-Site Scripting (XSS) and SQL Injection payloads",
+          "title": "Verify system sanitizes or rejects malicious XSS script tags and SQL syntax",
+          "preconditions": "User is authenticated.",
+          "test_data": "<script>alert('XSS_TEST')</script> OR '1'='1' --",
+          "steps": [
+            "1. Enter malicious script payload into text inputs",
+            "2. Submit the form",
+            "3. View the rendered output on dashboard and verify DOM source"
+          ],
+          "expected_result": "Payload is HTML-encoded/sanitized; no JavaScript executes; SQL queries are parameterized safely.",
+          "priority": "P1-Critical",
+          "test_type": "Security",
+          "automation_candidate": true,
+          "notes": "Critical security regression test for OWASP Top 10 vulnerabilities."
+        },
+        {
+          "test_case_id": "TC-AUT-005",
+          "requirement_id": "CMG-104",
+          "module": "Auth Service",
+          "feature": "Implement secure self-service password reset flow with 15min expiry",
+          "scenario": "Rapid multi-click submission idempotency check",
+          "title": "Verify rapid duplicate clicks on submit button do not create duplicate records",
+          "preconditions": "Form is filled with valid data.",
+          "test_data": "Valid submission data",
+          "steps": [
+            "1. Click the Submit button 3 times in rapid succession (< 200ms)",
+            "2. Monitor network panel requests and backend database records"
+          ],
+          "expected_result": "Submit button disables immediately upon first click with loading spinner; only 1 transaction is processed in backend; no duplicate entity created.",
+          "priority": "P2-High",
+          "test_type": "Integration",
+          "automation_candidate": true,
+          "notes": "Idempotency key or UI button debouncing validation."
+        },
+        {
+          "test_case_id": "TC-AUT-006",
+          "requirement_id": "CMG-104",
+          "module": "Auth Service",
+          "feature": "Implement secure self-service password reset flow with 15min expiry",
+          "scenario": "Session timeout and unauthorized direct URL access",
+          "title": "Verify unauthenticated or expired user is redirected to login with redirect_url preserved",
+          "preconditions": "User session cookie/token has expired or is cleared.",
+          "test_data": "Expired JWT token or cleared localStorage",
+          "steps": [
+            "1. Clear authentication token in browser storage",
+            "2. Attempt to navigate directly to Auth Service protected endpoint",
+            "3. Check network status and view navigation"
+          ],
+          "expected_result": "Request returns 401 Unauthorized; browser redirects to /login?redirect_to=Auth%20Service; no protected data is exposed.",
+          "priority": "P1-Critical",
+          "test_type": "Security",
+          "automation_candidate": true,
+          "notes": "Authentication gatekeeper verification."
+        },
+        {
+          "test_case_id": "TC-AUT-007",
+          "requirement_id": "CMG-104",
+          "module": "Auth Service",
+          "feature": "Implement secure self-service password reset flow with 15min expiry",
+          "scenario": "Graceful error handling when server returns 500 internal server error",
+          "title": "Verify UI displays user-friendly error dialog when API returns 500 error",
+          "preconditions": "API mock configured to respond with HTTP 500 Internal Server Error.",
+          "test_data": "Standard request triggered under server fault injection",
+          "steps": [
+            "1. Trigger action on Auth Service",
+            "2. Mock server response with HTTP 500 and payload { \"error\": \"Internal error\" }",
+            "3. Observe UI reaction"
+          ],
+          "expected_result": "UI catches error gracefully; shows message \"Something went wrong. Please try again\"; provides \"Retry\" button; user input is preserved in form.",
+          "priority": "P2-High",
+          "test_type": "Functional",
+          "automation_candidate": true,
+          "notes": "Resilience and user experience recovery testing."
+        },
+        {
+          "test_case_id": "TC-AUT-008",
+          "requirement_id": "CMG-104",
+          "module": "Auth Service",
+          "feature": "Implement secure self-service password reset flow with 15min expiry",
+          "scenario": "Responsive layout and touch target compliance across mobile and desktop",
+          "title": "Verify Auth Service layout renders correctly without horizontal scroll on mobile viewport (375px)",
+          "preconditions": "Browser devtools viewport set to 375x812 (iPhone 13/14).",
+          "test_data": "N/A",
+          "steps": [
+            "1. Open Auth Service on mobile viewport",
+            "2. Check navigation header, form inputs, button tap targets (min 44x44px)",
+            "3. Fill and submit action using touch interactions"
+          ],
+          "expected_result": "All elements wrap cleanly; zero horizontal overflow; buttons accessible and responsive.",
+          "priority": "P3-Medium",
+          "test_type": "Compatibility",
+          "automation_candidate": false,
+          "notes": "Cross-device visual regression inspection."
+        }
+      ],
+      "user_id": "usr-lead-001",
+      "user_name": "Sarah Jenkins",
+      "ai_model": "Heuristic QA Intelligence Engine v2.4",
+      "prompt_version": "v1.3.0",
+      "execution_time_ms": 0,
+      "created_at": "2026-09-28T12:53:31.138Z",
+      "updated_at": "2026-09-28T12:53:31.138Z"
     }
   ],
   "prompt_versions": [
@@ -7754,6 +9345,83 @@
       "ip_address": "::1",
       "created_at": "2026-09-28T11:54:51.130Z",
       "updated_at": "2026-09-28T11:54:51.130Z"
+    },
+    {
+      "id": "6135e114-ad7e-495d-8f48-28ff4e89ba5f",
+      "user_id": "usr-lead-001",
+      "action": "ANALYZE_REQUIREMENT",
+      "entity": "Requirement",
+      "entity_id": "N/A",
+      "details": "ANALYZE_REQUIREMENT on Requirement",
+      "ip_address": "::1",
+      "created_at": "2026-09-28T12:53:30.068Z",
+      "updated_at": "2026-09-28T12:53:30.068Z"
+    },
+    {
+      "id": "efb9165c-31e6-4196-967e-913c36de78ab",
+      "user_id": "usr-lead-001",
+      "action": "GENERATE_TEST_CASES",
+      "entity": "TestCase",
+      "entity_id": "N/A",
+      "details": "GENERATE_TEST_CASES on TestCase",
+      "ip_address": "::1",
+      "created_at": "2026-09-28T12:53:30.301Z",
+      "updated_at": "2026-09-28T12:53:30.301Z"
+    },
+    {
+      "id": "b20f86df-46c2-41de-8cda-2827909f4ea2",
+      "user_id": "usr-lead-001",
+      "action": "GENERATE_API_TESTS",
+      "entity": "ApiTest",
+      "entity_id": "N/A",
+      "details": "GENERATE_API_TESTS on ApiTest",
+      "ip_address": "::1",
+      "created_at": "2026-09-28T12:53:30.479Z",
+      "updated_at": "2026-09-28T12:53:30.479Z"
+    },
+    {
+      "id": "71d5419b-f37e-464e-aa30-ce52e098cc18",
+      "user_id": "usr-lead-001",
+      "action": "ANALYZE_EDGE_CASES",
+      "entity": "EdgeCase",
+      "entity_id": "N/A",
+      "details": "ANALYZE_EDGE_CASES on EdgeCase",
+      "ip_address": "::1",
+      "created_at": "2026-09-28T12:53:30.614Z",
+      "updated_at": "2026-09-28T12:53:30.614Z"
+    },
+    {
+      "id": "10292af0-84e6-47d3-9f1d-fd37eab2d93d",
+      "user_id": "usr-lead-001",
+      "action": "GENERATE_TEST_DATA",
+      "entity": "TestDataSet",
+      "entity_id": "N/A",
+      "details": "GENERATE_TEST_DATA on TestDataSet",
+      "ip_address": "::1",
+      "created_at": "2026-09-28T12:53:30.799Z",
+      "updated_at": "2026-09-28T12:53:30.799Z"
+    },
+    {
+      "id": "26a37ec5-5860-4a20-8081-aebd489d665b",
+      "user_id": "usr-lead-001",
+      "action": "ANALYZE_BUG",
+      "entity": "Bug",
+      "entity_id": "N/A",
+      "details": "ANALYZE_BUG on Bug",
+      "ip_address": "::1",
+      "created_at": "2026-09-28T12:53:31.057Z",
+      "updated_at": "2026-09-28T12:53:31.057Z"
+    },
+    {
+      "id": "09150c4b-2103-4bbf-abe6-40c849cfed2b",
+      "user_id": "usr-lead-001",
+      "action": "JIRA_GENERATE_TESTS",
+      "entity": "TestCase",
+      "entity_id": "N/A",
+      "details": "JIRA_GENERATE_TESTS on TestCase",
+      "ip_address": "::1",
+      "created_at": "2026-09-28T12:53:31.270Z",
+      "updated_at": "2026-09-28T12:53:31.270Z"
     }
   ],
   "app_settings": [

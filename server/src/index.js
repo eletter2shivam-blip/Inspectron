@@ -22,7 +22,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Health Check
-app.get('/api/health', (req, res) => {
+app.get(['/api/health', '/health'], (req, res) => {
   res.json({
     status: 'HEALTHY',
     service: 'AI QA Assistant Backend',
@@ -36,8 +36,9 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// REST API Routes
+// REST API Routes (supports both direct access and serverless proxy with stripped prefix)
 app.use('/api', apiRoutes);
+app.use('/', apiRoutes);
 
 // Serve static assets from React client build if present
 const clientDist = path.join(__dirname, '../../client/dist');
@@ -66,12 +67,15 @@ app.use(errorHandler);
 // Auto-seed demo project if fresh database
 seedDatabase(false);
 
-const server = app.listen(PORT, () => {
-  console.log(`=================================================`);
-  console.log(`🚀 AI QA Assistant Server running on port ${PORT}`);
-  console.log(`   Health Check: http://localhost:${PORT}/api/health`);
-  console.log(`   Demo Project: CMGalaxy (12 modules initialized)`);
-  console.log(`=================================================`);
-});
+let server = null;
+if (!process.env.VERCEL && process.env.NODE_ENV !== 'test') {
+  server = app.listen(PORT, () => {
+    console.log(`=================================================`);
+    console.log(`🚀 AI QA Assistant Server running on port ${PORT}`);
+    console.log(`   Health Check: http://localhost:${PORT}/api/health`);
+    console.log(`   Demo Project: CMGalaxy (12 modules initialized)`);
+    console.log(`=================================================`);
+  });
+}
 
 module.exports = { app, server };
