@@ -122,3 +122,6 @@ Thumbs.db
 
 # Scratch directory
 scratch/
+
+.vercel
+.env*

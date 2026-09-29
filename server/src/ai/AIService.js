@@ -1,5 +1,7 @@
 const db = require('../db/database');
 const GeminiProvider = require('./providers/GeminiProvider');
+const OpenAIProvider = require('./providers/OpenAIProvider');
+const AnthropicProvider = require('./providers/AnthropicProvider');
 const HeuristicQAEngine = require('./providers/HeuristicQAEngine');
 const { schemas } = require('./validator');
 
@@ -20,19 +22,26 @@ class AIService {
   }
 
   updateProvider() {
-    // Read user settings or environment
     const apiKeySetting = db.findOne('app_settings', { key: 'gemini_api_key' });
     const modelSetting = db.findOne('app_settings', { key: 'ai_model' });
     const providerSetting = db.findOne('app_settings', { key: 'ai_provider' });
 
-    const apiKey = (apiKeySetting && apiKeySetting.value) || process.env.GEMINI_API_KEY || '';
-    const model = (modelSetting && modelSetting.value) || 'gemini-3.8-flash';
-    this.providerMode = (providerSetting && providerSetting.value) || 'hybrid';
+    const providerType = (providerSetting && providerSetting.value) || process.env.AI_PROVIDER || 'gemini';
+    const apiKey = (apiKeySetting && apiKeySetting.value) || process.env.GEMINI_API_KEY || process.env.AI_API_KEY || '';
+    const model = (modelSetting && modelSetting.value) || process.env.AI_MODEL || 'gemini-2.5-flash';
 
-    this.geminiProvider = new GeminiProvider(apiKey, model);
+    this.providerType = providerType.toLowerCase();
+    this.providerMode = process.env.AI_MODE || 'hybrid'; // 'strict', 'offline', 'hybrid'
+
+    if (this.providerType === 'openai') {
+      this.activeProvider = new OpenAIProvider(apiKey || process.env.OPENAI_API_KEY, model || 'gpt-4o-mini');
+    } else if (this.providerType === 'anthropic') {
+      this.activeProvider = new AnthropicProvider(apiKey || process.env.ANTHROPIC_API_KEY, model || 'claude-3-5-sonnet-20241022');
+    } else {
+      this.activeProvider = new GeminiProvider(apiKey, model);
+    }
   }
 
-  // Get active prompt template or fallback to file-based default
   getActivePrompt(featureKey, fileDefault) {
     const dbPrompt = db.findOne('prompt_versions', { feature: featureKey, is_active: true });
     if (dbPrompt) {
@@ -47,11 +56,10 @@ class AIService {
     };
   }
 
-  // Log AI generation history (Section 18)
-  logHistory(projectId, feature, inputType, inputPayload, generatedOutput, user, executionTimeMs, modelName, promptVer) {
+  logHistory(projectId, feature, inputType, inputPayload, generatedOutput, user, executionTimeMs, modelName, promptVer, usage = {}) {
     try {
       db.insert('ai_generations', {
-        project_id: projectId || 'default',
+        project_id: projectId || 'proj-inspectron-01',
         feature,
         input_type: inputType,
         input_payload: typeof inputPayload === 'object' ? JSON.stringify(inputPayload).slice(0, 500) : String(inputPayload).slice(0, 500),
@@ -62,41 +70,80 @@ class AIService {
         prompt_version: promptVer,
         execution_time_ms: executionTimeMs
       });
+
+      // Also log into normalized ai_usage table
+      const inputTokens = usage.inputTokens || Math.max(10, Math.round(String(inputPayload).length / 4));
+      const outputTokens = usage.outputTokens || Math.max(15, Math.round(JSON.stringify(generatedOutput).length / 4));
+      const estimatedCost = (inputTokens * 0.00000015) + (outputTokens * 0.0000006);
+
+      db.insert('ai_usage', {
+        project_id: projectId || 'proj-inspectron-01',
+        user_id: user ? user.id : 'usr-auto',
+        provider: this.activeProvider?.name || 'Inspectron AI Engine',
+        model: modelName,
+        input_tokens: inputTokens,
+        output_tokens: outputTokens,
+        duration_ms: executionTimeMs,
+        estimated_cost_usd: Number(estimatedCost.toFixed(6)),
+        created_at: new Date().toISOString()
+      });
     } catch (e) {
-      console.warn('Failed to log AI history:', e.message);
+      console.warn('Failed to log AI history/usage:', e.message);
     }
+  }
+
+  async executeWithFallback(systemInstruction, userPrompt, schema, heuristicFallbackFn, context = {}) {
+    const startTime = Date.now();
+    this.updateProvider();
+
+    let result = null;
+    let modelUsed = this.heuristicEngine.name;
+    let usage = {};
+
+    // Check if real provider is configured
+    if (this.activeProvider.isConfigured() && this.providerMode !== 'offline') {
+      try {
+        const res = await this.activeProvider.generateJSON(systemInstruction, userPrompt, schema);
+        result = res.data;
+        usage = res.usage || {};
+        modelUsed = this.activeProvider.model;
+      } catch (err) {
+        console.warn(`[AI Engine] ${this.activeProvider.name} failed:`, err.message);
+        if (this.providerMode === 'strict') {
+          throw err;
+        }
+      }
+    } else if (this.providerMode === 'strict') {
+      const err = new Error(`AI Provider "${this.activeProvider.name}" is not configured with an API key.`);
+      err.code = 'AI_PROVIDER_NOT_CONFIGURED';
+      throw err;
+    }
+
+    // Fallback to Heuristic Engine if provider not available
+    if (!result) {
+      result = await heuristicFallbackFn();
+      modelUsed = this.heuristicEngine.name;
+    }
+
+    const duration = Date.now() - startTime;
+    return { result, modelUsed, duration, usage };
   }
 
   /**
    * 1. Analyze Requirement
    */
   async analyzeRequirement(requirementText, context = {}, user = null) {
-    const startTime = Date.now();
-    this.updateProvider();
     const activePrompt = this.getActivePrompt('requirement_analysis', reqPrompts.v1);
-    let result = null;
-    let modelUsed = this.heuristicEngine.name;
+    const prompt = reqPrompts.v1.buildPrompt(requirementText, context);
 
-    // Try Gemini if configured and mode allows
-    if (this.geminiProvider.isConfigured() && this.providerMode !== 'offline') {
-      try {
-        const prompt = reqPrompts.v1.buildPrompt(requirementText, context);
-        result = await this.geminiProvider.generate(
-          reqPrompts.v1.systemInstruction,
-          prompt,
-          schemas.RequirementAnalysisSchema
-        );
-        modelUsed = this.geminiProvider.model;
-      } catch (err) {
-        console.warn('Gemini failed, falling back to Heuristic QA Engine:', err.message);
-      }
-    }
+    const { result, modelUsed, duration, usage } = await this.executeWithFallback(
+      reqPrompts.v1.systemInstruction,
+      prompt,
+      schemas.RequirementAnalysisSchema,
+      () => this.heuristicEngine.analyzeRequirement(requirementText, context),
+      context
+    );
 
-    if (!result) {
-      result = await this.heuristicEngine.analyzeRequirement(requirementText, context);
-    }
-
-    const duration = Date.now() - startTime;
     this.logHistory(
       context.projectId,
       'Requirement Analysis',
@@ -106,7 +153,8 @@ class AIService {
       user,
       duration,
       modelUsed,
-      activePrompt.version
+      activePrompt.version,
+      usage
     );
 
     return result;
@@ -116,41 +164,28 @@ class AIService {
    * 2. Generate Test Cases
    */
   async generateTestCases(requirementText, options = {}, user = null) {
-    const startTime = Date.now();
-    this.updateProvider();
     const activePrompt = this.getActivePrompt('test_case_generation', tcPrompts.v1);
-    let result = null;
-    let modelUsed = this.heuristicEngine.name;
+    const prompt = tcPrompts.v1.buildPrompt(requirementText, options);
 
-    if (this.geminiProvider.isConfigured() && this.providerMode !== 'offline') {
-      try {
-        const prompt = tcPrompts.v1.buildPrompt(requirementText, options);
-        result = await this.geminiProvider.generate(
-          tcPrompts.v1.systemInstruction,
-          prompt,
-          schemas.TestCaseGenerationSchema
-        );
-        modelUsed = this.geminiProvider.model;
-      } catch (err) {
-        console.warn('Gemini generation failed, using Heuristic QA Engine:', err.message);
-      }
-    }
+    const { result, modelUsed, duration, usage } = await this.executeWithFallback(
+      tcPrompts.v1.systemInstruction,
+      prompt,
+      schemas.TestCaseBatchSchema,
+      () => this.heuristicEngine.generateTestCases(requirementText, options),
+      options
+    );
 
-    if (!result || !result.test_cases || result.test_cases.length === 0) {
-      result = await this.heuristicEngine.generateTestCases(requirementText, options);
-    }
-
-    const duration = Date.now() - startTime;
     this.logHistory(
-      options.projectId,
+      options.project_id || options.projectId,
       'Test Case Generation',
-      options.requirementId ? `Requirement: ${options.requirementId}` : 'Raw Text',
+      'User Story / Spec',
       requirementText,
-      result.test_cases,
+      result,
       user,
       duration,
       modelUsed,
-      activePrompt.version
+      activePrompt.version,
+      usage
     );
 
     return result;
@@ -159,42 +194,29 @@ class AIService {
   /**
    * 3. Generate Regression Tests
    */
-  async generateRegressionTests(input, user = null) {
-    const startTime = Date.now();
-    this.updateProvider();
+  async generateRegressionTests(changedFeature, affectedModules = [], context = {}, user = null) {
     const activePrompt = this.getActivePrompt('regression_generation', regPrompts.v1);
-    let result = null;
-    let modelUsed = this.heuristicEngine.name;
+    const prompt = regPrompts.v1.buildPrompt(changedFeature, affectedModules, context);
 
-    if (this.geminiProvider.isConfigured() && this.providerMode !== 'offline') {
-      try {
-        const prompt = regPrompts.v1.buildPrompt(input);
-        result = await this.geminiProvider.generate(
-          regPrompts.v1.systemInstruction,
-          prompt,
-          schemas.RegressionGenerationSchema
-        );
-        modelUsed = this.geminiProvider.model;
-      } catch (err) {
-        console.warn('Gemini regression generation failed, using Heuristic Engine:', err.message);
-      }
-    }
+    const { result, modelUsed, duration, usage } = await this.executeWithFallback(
+      regPrompts.v1.systemInstruction,
+      prompt,
+      schemas.RegressionSuiteSchema,
+      () => this.heuristicEngine.generateRegressionTests(changedFeature, affectedModules, context),
+      context
+    );
 
-    if (!result || !result.regression_test_cases) {
-      result = await this.heuristicEngine.generateRegressionTests(input);
-    }
-
-    const duration = Date.now() - startTime;
     this.logHistory(
-      input.projectId,
-      'Regression Test Generation',
-      'Change Context / Bug Fix',
-      input.requirement || input.changes,
+      context.projectId,
+      'Regression Generation',
+      'Feature Change Trigger',
+      { changedFeature, affectedModules },
       result,
       user,
       duration,
       modelUsed,
-      activePrompt.version
+      activePrompt.version,
+      usage
     );
 
     return result;
@@ -203,174 +225,131 @@ class AIService {
   /**
    * 4. Generate API Tests
    */
-  async generateApiTests(spec, user = null) {
-    const startTime = Date.now();
-    this.updateProvider();
+  async generateApiTests(endpointSpec, context = {}, user = null) {
     const activePrompt = this.getActivePrompt('api_test_generation', apiPrompts.v1);
-    let result = null;
-    let modelUsed = this.heuristicEngine.name;
+    const prompt = apiPrompts.v1.buildPrompt(endpointSpec, context);
 
-    if (this.geminiProvider.isConfigured() && this.providerMode !== 'offline') {
-      try {
-        const prompt = apiPrompts.v1.buildPrompt(spec);
-        result = await this.geminiProvider.generate(
-          apiPrompts.v1.systemInstruction,
-          prompt,
-          schemas.ApiTestGenerationSchema
-        );
-        modelUsed = this.geminiProvider.model;
-      } catch (err) {
-        console.warn('Gemini API test gen failed, using Heuristic QA Engine:', err.message);
-      }
-    }
+    const { result, modelUsed, duration, usage } = await this.executeWithFallback(
+      apiPrompts.v1.systemInstruction,
+      prompt,
+      schemas.ApiTestSuiteSchema,
+      () => this.heuristicEngine.generateApiTests(endpointSpec, context),
+      context
+    );
 
-    if (!result || !result.api_tests) {
-      result = await this.heuristicEngine.generateApiTests(spec);
-    }
-
-    const duration = Date.now() - startTime;
     this.logHistory(
-      spec.projectId,
+      context.projectId,
       'API Test Generation',
-      `${spec.method} ${spec.endpoint}`,
-      spec,
-      result.api_tests,
+      'OpenAPI / Endpoint Definition',
+      endpointSpec,
+      result,
       user,
       duration,
       modelUsed,
-      activePrompt.version
+      activePrompt.version,
+      usage
     );
 
     return result;
   }
 
   /**
-   * 5. Find Edge Cases
+   * 5. Analyze Edge Cases
    */
-  async findEdgeCases(input, user = null) {
-    const startTime = Date.now();
-    this.updateProvider();
-    const activePrompt = this.getActivePrompt('edge_case_detection', edgePrompts.v1);
-    let result = null;
-    let modelUsed = this.heuristicEngine.name;
+  async analyzeEdgeCases(featureSpec, context = {}, user = null) {
+    const activePrompt = this.getActivePrompt('edge_case_analysis', edgePrompts.v1);
+    const prompt = edgePrompts.v1.buildPrompt(featureSpec, context);
 
-    if (this.geminiProvider.isConfigured() && this.providerMode !== 'offline') {
-      try {
-        const prompt = edgePrompts.v1.buildPrompt(input);
-        result = await this.geminiProvider.generate(
-          edgePrompts.v1.systemInstruction,
-          prompt,
-          schemas.EdgeCaseDetectionSchema
-        );
-        modelUsed = this.geminiProvider.model;
-      } catch (err) {
-        console.warn('Gemini Edge Case failed, using Heuristic Engine:', err.message);
-      }
-    }
+    const { result, modelUsed, duration, usage } = await this.executeWithFallback(
+      edgePrompts.v1.systemInstruction,
+      prompt,
+      schemas.EdgeCaseAnalysisSchema,
+      () => this.heuristicEngine.analyzeEdgeCases(featureSpec, context),
+      context
+    );
 
-    if (!result || !result.edge_cases) {
-      result = await this.heuristicEngine.findEdgeCases(input);
-    }
-
-    const duration = Date.now() - startTime;
     this.logHistory(
-      input.projectId,
+      context.projectId,
       'Edge Case Analysis',
-      'Requirement & Existing Tests',
-      input.requirement,
-      result.edge_cases,
+      'Feature Specification',
+      featureSpec,
+      result,
       user,
       duration,
       modelUsed,
-      activePrompt.version
+      activePrompt.version,
+      usage
     );
 
     return result;
   }
 
+  async findEdgeCases(spec, user = null) {
+    const featureSpec = spec.requirement || spec.featureSpec || spec;
+    const context = {
+      projectId: spec.projectId,
+      existingTestCases: spec.existingTestCases
+    };
+    return this.analyzeEdgeCases(featureSpec, context, user);
+  }
+
   /**
-   * 6. Generate Test Data
+   * 6. Generate Synthetic Test Data
    */
-  async generateTestData(spec, user = null) {
-    const startTime = Date.now();
-    this.updateProvider();
+  async generateTestData(schemaRequirements, context = {}, user = null) {
     const activePrompt = this.getActivePrompt('test_data_generation', dataPrompts.v1);
-    let result = null;
-    let modelUsed = this.heuristicEngine.name;
+    const prompt = dataPrompts.v1.buildPrompt(schemaRequirements, context);
 
-    if (this.geminiProvider.isConfigured() && this.providerMode !== 'offline') {
-      try {
-        const prompt = dataPrompts.v1.buildPrompt(spec);
-        result = await this.geminiProvider.generate(
-          dataPrompts.v1.systemInstruction,
-          prompt,
-          schemas.TestDataGenerationSchema
-        );
-        modelUsed = this.geminiProvider.model;
-      } catch (err) {
-        console.warn('Gemini test data gen failed, using Heuristic Engine:', err.message);
-      }
-    }
+    const { result, modelUsed, duration, usage } = await this.executeWithFallback(
+      dataPrompts.v1.systemInstruction,
+      prompt,
+      schemas.TestDataSetSchema,
+      () => this.heuristicEngine.generateTestData(schemaRequirements, context),
+      context
+    );
 
-    if (!result || !result.records) {
-      result = await this.heuristicEngine.generateTestData(spec);
-    }
-
-    const duration = Date.now() - startTime;
     this.logHistory(
-      spec.projectId,
+      context.projectId,
       'Test Data Generation',
-      `${spec.field_name} (${spec.data_type}) - Count: ${spec.quantity}`,
-      spec,
+      'Schema & Data Rules',
+      schemaRequirements,
       result,
       user,
       duration,
       modelUsed,
-      activePrompt.version
+      activePrompt.version,
+      usage
     );
 
     return result;
   }
 
   /**
-   * 7. Analyze Bug
+   * 7. Analyze Bug & RCA
    */
-  async analyzeBug(bug, user = null) {
-    const startTime = Date.now();
-    this.updateProvider();
+  async analyzeBug(bugReport, context = {}, user = null) {
     const activePrompt = this.getActivePrompt('bug_analysis', bugPrompts.v1);
-    let result = null;
-    let modelUsed = this.heuristicEngine.name;
+    const prompt = bugPrompts.v1.buildPrompt(bugReport, context);
 
-    if (this.geminiProvider.isConfigured() && this.providerMode !== 'offline') {
-      try {
-        const prompt = bugPrompts.v1.buildPrompt(bug);
-        result = await this.geminiProvider.generate(
-          bugPrompts.v1.systemInstruction,
-          prompt,
-          schemas.BugAnalysisSchema
-        );
-        modelUsed = this.geminiProvider.model;
-      } catch (err) {
-        console.warn('Gemini bug analysis failed, using Heuristic Engine:', err.message);
-      }
-    }
+    const { result, modelUsed, duration, usage } = await this.executeWithFallback(
+      bugPrompts.v1.systemInstruction,
+      prompt,
+      schemas.BugAnalysisSchema,
+      () => this.heuristicEngine.analyzeBug(bugReport, context),
+      context
+    );
 
-    if (!result || !result.bug_summary) {
-      result = await this.heuristicEngine.analyzeBug(bug);
-    }
-
-    const duration = Date.now() - startTime;
     this.logHistory(
-      bug.projectId,
-      'Bug Analysis & Regression',
-      `Defect: ${bug.title}`,
-      bug,
+      context.projectId,
+      'Bug RCA & Analysis',
+      'Defect Report',
+      bugReport,
       result,
       user,
       duration,
       modelUsed,
-      activePrompt.version
+      activePrompt.version,
+      usage
     );
 
     return result;
@@ -380,29 +359,16 @@ class AIService {
    * 8. Review Test Cases (Quality Engine)
    */
   async reviewTestCases(testCases = [], user = null) {
-    const startTime = Date.now();
-    this.updateProvider();
     const activePrompt = this.getActivePrompt('test_case_quality_review', qualPrompts.v1);
-    let result = null;
-    let modelUsed = this.heuristicEngine.name;
+    const prompt = qualPrompts.v1.buildPrompt(testCases);
 
-    if (this.geminiProvider.isConfigured() && this.providerMode !== 'offline') {
-      try {
-        const prompt = qualPrompts.v1.buildPrompt(testCases);
-        result = await this.geminiProvider.generate(
-          qualPrompts.v1.systemInstruction,
-          prompt,
-          schemas.QualityReviewSchema
-        );
-        modelUsed = this.geminiProvider.model;
-      } catch (err) {
-        console.warn('Gemini Quality review failed, using Heuristic Engine:', err.message);
-      }
-    }
-
-    if (!result || typeof result.quality_score !== 'number') {
-      result = await this.heuristicEngine.reviewTestCases(testCases);
-    }
+    const { result } = await this.executeWithFallback(
+      qualPrompts.v1.systemInstruction,
+      prompt,
+      schemas.QualityReviewSchema,
+      () => this.heuristicEngine.reviewTestCases(testCases),
+      {}
+    );
 
     return result;
   }
@@ -412,6 +378,30 @@ class AIService {
    */
   async analyzeCoverage(requirements = [], testCases = []) {
     return this.heuristicEngine.analyzeCoverage(requirements, testCases);
+  }
+
+  /**
+   * 10. Calculate Risk
+   */
+  async calculateRisk(feature, changes = [], user = null) {
+    const riskAnalysis = {
+      feature,
+      risk_score: Math.min(100, Math.max(10, (changes.length * 15) + (feature.toLowerCase().includes('auth') || feature.toLowerCase().includes('payment') ? 40 : 20))),
+      risk_level: 'MEDIUM',
+      critical_factors: [
+        'Component dependency surface',
+        'State transition complexity',
+        'External API boundaries'
+      ],
+      recommendations: [
+        'Execute automated regression suite prior to merge',
+        'Verify edge case inputs on public endpoints',
+        'Perform security sanity check on permission boundaries'
+      ]
+    };
+    if (riskAnalysis.risk_score >= 70) riskAnalysis.risk_level = 'HIGH';
+    else if (riskAnalysis.risk_score <= 30) riskAnalysis.risk_level = 'LOW';
+    return riskAnalysis;
   }
 }
 

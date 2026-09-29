@@ -559,6 +559,11 @@ pm.test("Error message is present", function () {
   /**
    * 5. Find Edge Cases
    */
+  async analyzeEdgeCases(featureSpec, context = {}) {
+    const reqText = typeof featureSpec === 'string' ? featureSpec : (featureSpec.requirement || '');
+    return this.findEdgeCases({ requirement: reqText, ...context });
+  }
+
   async findEdgeCases(input) {
     const reqText = input.requirement || '';
     const { hasAuth, hasApi, hasData } = this.extractConcepts(reqText);

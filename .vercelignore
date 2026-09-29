@@ -1,0 +1,18 @@
+# Vercel Ignore - prevent uploading large local binary and build folders
+tools/
+tools/**
+target/
+target/**
+reports/
+reports/**
+scratch/
+scratch/**
+node_modules/
+client/node_modules/
+server/node_modules/
+client/dist/
+.git/
+*.jar
+*.class
+*.exe
+*.zip

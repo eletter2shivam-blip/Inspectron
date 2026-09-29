@@ -276,7 +276,4 @@ test('Inspectron QA Assistant Backend Suite', async (t) => {
     const sel = await selRes.json();
     assert.ok(sel.script.includes('org.openqa.selenium'));
   });
-
-  // Close server cleanly
-  server.close();
 });

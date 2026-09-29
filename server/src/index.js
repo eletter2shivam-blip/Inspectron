@@ -4,6 +4,7 @@ const cors = require('cors');
 const path = require('path');
 const apiRoutes = require('./routes/api');
 const errorHandler = require('./middleware/errorHandler');
+const responseHandler = require('./middleware/responseHandler');
 const db = require('./db/database');
 const { seedDatabase } = require('./db/seed');
 
@@ -20,6 +21,9 @@ app.use(cors({
 // Body parser with 10MB limit for screenshots & test data
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Standardized Response Format Middleware ({ success: true, data: ..., message: ... })
+app.use(responseHandler);
 
 // Health Check
 app.get(['/api/health', '/health'], (req, res) => {

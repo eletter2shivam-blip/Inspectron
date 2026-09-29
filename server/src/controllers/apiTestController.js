@@ -1,6 +1,7 @@
 const db = require('../db/database');
 const aiService = require('../ai/AIService');
 const automationExporter = require('../services/AutomationExporter');
+const apiExecutionEngine = require('../services/ApiExecutionEngine');
 
 exports.getApiTests = (req, res, next) => {
   try {
@@ -109,6 +110,82 @@ exports.exportPostmanCollection = (req, res, next) => {
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Content-Disposition', 'attachment; filename="AI_QA_Assistant_Postman_Collection.json"');
     res.send(JSON.stringify(collection, null, 2));
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.executeTestCase = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const testCase = db.findById('api_tests', id) || db.findOne('api_tests', { api_test_id: id });
+    if (!testCase) {
+      return res.status(404).json({ error: 'NOT_FOUND', message: 'API test case not found.' });
+    }
+
+    const { envVars = {}, environmentId } = req.body;
+    let environment = {};
+    if (environmentId) {
+      const envRec = db.findById('environments', environmentId);
+      if (envRec && envRec.variables) {
+        environment = { ...envRec.variables, baseUrl: envRec.base_url };
+      }
+    }
+
+    const executionResult = await apiExecutionEngine.executeTestCase(testCase, { ...environment, ...envVars });
+    res.json({
+      success: true,
+      execution: executionResult
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.executeAll = async (req, res, next) => {
+  try {
+    const { projectId = 'proj-inspectron-01', envVars = {}, environmentId } = req.body;
+    const tests = db.find('api_tests', { project_id: projectId });
+    if (!tests || tests.length === 0) {
+      return res.json({ success: true, message: 'No API tests found to execute.', results: [] });
+    }
+
+    let environment = {};
+    if (environmentId) {
+      const envRec = db.findById('environments', environmentId);
+      if (envRec && envRec.variables) {
+        environment = { ...envRec.variables, baseUrl: envRec.base_url };
+      }
+    }
+
+    const results = await apiExecutionEngine.executeCollection(tests, { ...environment, ...envVars });
+    const passed = results.filter(r => r.status === 'PASSED').length;
+    const failed = results.filter(r => r.status === 'FAILED').length;
+
+    res.json({
+      success: true,
+      summary: {
+        total: results.length,
+        passed,
+        failed,
+        pass_rate: results.length > 0 ? Math.round((passed / results.length) * 100) : 0
+      },
+      executions: results
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getExecutions = (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const executions = db.find('api_executions', (e) => e.api_test_case_id === id, { executed_at: 'desc' });
+    res.json({
+      success: true,
+      api_test_case_id: id,
+      executions
+    });
   } catch (err) {
     next(err);
   }

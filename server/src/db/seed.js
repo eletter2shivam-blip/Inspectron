@@ -46,6 +46,74 @@ async function seedDatabase(force = false) {
   ];
   db.insertMany('users', users);
 
+  // 1b. RBAC Roles & Permissions
+  const roles = [
+    { id: 'role-admin', name: 'admin', description: 'System Administrator with full access' },
+    { id: 'role-qa-lead', name: 'qa_lead', description: 'QA Lead with approval and configuration authority' },
+    { id: 'role-senior-qa', name: 'senior_qa', description: 'Senior SDET Engineer with test design & execution authority' },
+    { id: 'role-qa-engineer', name: 'qa_engineer', description: 'QA Engineer with test case creation & execution access' },
+    { id: 'role-developer', name: 'developer', description: 'Developer with read and test data access' },
+    { id: 'role-viewer', name: 'viewer', description: 'Read-only stakeholder access' }
+  ];
+  db.insertMany('roles', roles);
+
+  const permissions = [
+    { id: 'perm-proj-c', name: 'projects:create' },
+    { id: 'perm-proj-r', name: 'projects:read' },
+    { id: 'perm-proj-u', name: 'projects:update' },
+    { id: 'perm-proj-d', name: 'projects:delete' },
+    { id: 'perm-req-c', name: 'requirements:create' },
+    { id: 'perm-req-r', name: 'requirements:read' },
+    { id: 'perm-req-u', name: 'requirements:update' },
+    { id: 'perm-req-d', name: 'requirements:delete' },
+    { id: 'perm-tc-c', name: 'testcases:create' },
+    { id: 'perm-tc-r', name: 'testcases:read' },
+    { id: 'perm-tc-u', name: 'testcases:update' },
+    { id: 'perm-tc-d', name: 'testcases:delete' },
+    { id: 'perm-tc-a', name: 'testcases:approve' },
+    { id: 'perm-api-c', name: 'api_tests:create' },
+    { id: 'perm-api-r', name: 'api_tests:read' },
+    { id: 'perm-api-e', name: 'api_tests:execute' },
+    { id: 'perm-api-d', name: 'api_tests:delete' },
+    { id: 'perm-exec-r', name: 'executions:read' },
+    { id: 'perm-exec-t', name: 'executions:trigger' },
+    { id: 'perm-jira-r', name: 'jira:read' },
+    { id: 'perm-jira-c', name: 'jira:configure' },
+    { id: 'perm-set-r', name: 'settings:read' },
+    { id: 'perm-set-u', name: 'settings:update' },
+    { id: 'perm-aud-r', name: 'audit:read' }
+  ];
+  db.insertMany('permissions', permissions);
+
+  // 1c. Environments
+  const environments = [
+    {
+      id: 'env-dev',
+      project_id: 'proj-inspectron-01',
+      name: 'Development',
+      base_url: 'https://dev-api.inspectron.io',
+      is_active: false,
+      variables: { baseUrl: 'https://dev-api.inspectron.io', env: 'dev' }
+    },
+    {
+      id: 'env-staging',
+      project_id: 'proj-inspectron-01',
+      name: 'Staging',
+      base_url: 'https://httpbin.org',
+      is_active: true,
+      variables: { baseUrl: 'https://httpbin.org', env: 'staging' }
+    },
+    {
+      id: 'env-prod',
+      project_id: 'proj-inspectron-01',
+      name: 'Production',
+      base_url: 'https://api.inspectron.io',
+      is_active: false,
+      variables: { baseUrl: 'https://api.inspectron.io', env: 'prod' }
+    }
+  ];
+  db.insertMany('environments', environments);
+
   // 2. Demo Project: Inspectron
   const inspectronProject = {
     id: 'proj-inspectron-01',
@@ -483,6 +551,18 @@ Include: valid, invalid, boundary, negative, and edge-case values. Never output 
   ];
   db.insertMany('test_cases', testCases);
 
+  // 6b. Test Case Versions (Audit snapshot)
+  const testCaseVersions = testCases.map(tc => ({
+    id: `ver-${tc.id}-1`,
+    test_case_id: tc.id,
+    version: 1,
+    snapshot: tc,
+    change_reason: 'Initial baseline creation',
+    changed_by: 'usr-lead-001',
+    created_at: new Date().toISOString()
+  }));
+  db.insertMany('test_case_versions', testCaseVersions);
+
   // 7. Sample API Test Cases (Section 8)
   const apiTests = [
     {
@@ -572,6 +652,41 @@ pm.test("Response contains campaign ID", function () {
     }
   ];
   db.insertMany('api_tests', apiTests);
+
+  // 7b. API Executions History
+  const apiExecutions = [
+    {
+      id: 'exec-seed-001',
+      api_test_case_id: 'api-tc-001',
+      project_id: 'proj-inspectron-01',
+      status: 'PASSED',
+      response_status: 200,
+      response_time_ms: 124,
+      response_headers: { 'content-type': 'application/json' },
+      response_body: { success: true, message: 'If an account exists, a reset link has been dispatched.' },
+      assertion_results: [
+        { name: 'Status code is 200', passed: true, actual: 200, expected: 200 },
+        { name: 'Response time under 2000ms', passed: true, actual: '124ms', expected: '< 2000ms' }
+      ],
+      executed_at: new Date(Date.now() - 3600000).toISOString()
+    },
+    {
+      id: 'exec-seed-002',
+      api_test_case_id: 'api-tc-002',
+      project_id: 'proj-inspectron-01',
+      status: 'PASSED',
+      response_status: 400,
+      response_time_ms: 88,
+      response_headers: { 'content-type': 'application/json' },
+      response_body: { error: 'INVALID_OR_EXPIRED_TOKEN', message: 'Token is invalid or has expired.' },
+      assertion_results: [
+        { name: 'Status code is 400', passed: true, actual: 400, expected: 400 },
+        { name: 'Response time under 2000ms', passed: true, actual: '88ms', expected: '< 2000ms' }
+      ],
+      executed_at: new Date(Date.now() - 1800000).toISOString()
+    }
+  ];
+  db.insertMany('api_executions', apiExecutions);
 
   // 8. Sample Regression Tests (Section 7)
   const regressionTests = [
@@ -803,6 +918,91 @@ pm.test("Response contains campaign ID", function () {
     value: 'gemini-3.8-flash',
     description: 'Primary AI Model for QA Generation'
   });
+
+  // 16. Edge Cases
+  const edgeCases = [
+    {
+      id: 'edge-001',
+      project_id: 'proj-inspectron-01',
+      requirement_id: 'REQ-CMG-001',
+      title: 'Zero-width whitespace and Unicode normalization in email input',
+      category: 'Data & Input Validation',
+      risk_level: 'High',
+      preconditions: 'User registers email containing invisible zero-width space characters',
+      steps: [
+        '1. Enter email containing zero-width non-joiner U+200C',
+        '2. Request password reset',
+        '3. Inspect normalized email lookup in database query'
+      ],
+      expected_behavior: 'Input sanitization strips zero-width spaces or rejects input without throwing unhandled exception.',
+      promoted: false
+    },
+    {
+      id: 'edge-002',
+      project_id: 'proj-inspectron-01',
+      requirement_id: 'REQ-CMG-001',
+      title: 'Concurrent password resets submitted within 5ms window',
+      category: 'Concurrency & Race Conditions',
+      risk_level: 'High',
+      preconditions: 'Two identical reset requests hit API gateway simultaneously',
+      steps: [
+        '1. Send 2 parallel HTTP POST requests with exact same token',
+        '2. Verify database transaction isolation level'
+      ],
+      expected_behavior: 'Atomic single-use token invalidation; exactly 1 succeeds, second fails with 400 Bad Request.',
+      promoted: false
+    },
+    {
+      id: 'edge-003',
+      project_id: 'proj-inspectron-01',
+      requirement_id: 'REQ-CMG-002',
+      title: 'Meta Ads API outage during dual-platform campaign commit',
+      category: 'Network & Service Outage',
+      risk_level: 'Critical',
+      preconditions: 'Google Ads campaign creates successfully, Meta Graph returns HTTP 503',
+      steps: [
+        '1. Initiate campaign publish targeting both platforms',
+        '2. Mock Meta API 503 Service Unavailable',
+        '3. Verify compensatory transaction/rollback'
+      ],
+      expected_behavior: 'Platform pauses Google Ads campaign and flags campaign as "PARTIAL_SYNC_ERROR" with user retry button.',
+      promoted: false
+    }
+  ];
+  db.insertMany('edge_cases', edgeCases);
+
+  // 17. AI Token Usage & Cost Attribution
+  const aiUsage = [
+    {
+      id: 'usage-001',
+      user_id: 'usr-lead-001',
+      project_id: 'proj-inspectron-01',
+      feature: 'testcases:generate',
+      provider: 'gemini',
+      model: 'gemini-3.8-flash',
+      prompt_tokens: 840,
+      completion_tokens: 1250,
+      total_tokens: 2090,
+      duration_ms: 1620,
+      cost_usd: 0.00045,
+      created_at: new Date(Date.now() - 7200000).toISOString()
+    },
+    {
+      id: 'usage-002',
+      user_id: 'usr-qa-002',
+      project_id: 'proj-inspectron-01',
+      feature: 'requirements:analyze',
+      provider: 'gemini',
+      model: 'gemini-3.8-flash',
+      prompt_tokens: 520,
+      completion_tokens: 980,
+      total_tokens: 1500,
+      duration_ms: 1340,
+      cost_usd: 0.00032,
+      created_at: new Date(Date.now() - 3600000).toISOString()
+    }
+  ];
+  db.insertMany('ai_usage', aiUsage);
 
   console.log('Seed completed successfully! Inspectron demo project is ready.');
 }

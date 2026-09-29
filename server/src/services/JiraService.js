@@ -1,22 +1,36 @@
 const https = require('https');
 const http = require('http');
 const db = require('../db/database');
+const { encryptSecret, decryptSecret, maskSecret } = require('../security/crypto');
+const { isSafeUrl } = require('../security/ssrf');
 
 class JiraService {
   /**
-   * Save Jira credentials securely (token masked in client responses)
+   * Save Jira credentials securely (AES-256 encrypted, token masked in client responses)
    */
   saveConfig(projectId, config) {
+    const cleanUrl = (config.jira_url || '').replace(/\/+$/, '');
+    if (cleanUrl && !isSafeUrl(cleanUrl)) {
+      throw new Error('BLOCKED_SSRF: The target Jira URL resolves to a protected or private IP space.');
+    }
+
     const existing = db.findOne('jira_configs', { project_id: projectId });
-    const masked = config.api_token ? `••••••••••••${config.api_token.slice(-4)}` : (existing?.api_token_masked || '');
+    
+    let encryptedToken = existing ? existing.encrypted_api_token : '';
+    let masked = existing ? existing.api_token_masked : '••••••••••••';
+
+    if (config.api_token && !config.api_token.includes('••••')) {
+      encryptedToken = encryptSecret(config.api_token);
+      masked = maskSecret(config.api_token);
+    }
 
     const record = {
       project_id: projectId,
-      jira_url: (config.jira_url || '').replace(/\/+$/, ''),
-      username: config.username || '',
-      api_token_raw: config.api_token || (existing ? existing.api_token_raw : ''),
+      jira_url: cleanUrl || existing?.jira_url || '',
+      username: config.username || existing?.username || '',
+      encrypted_api_token: encryptedToken,
       api_token_masked: masked,
-      project_key: (config.project_key || 'CMG').toUpperCase(),
+      project_key: (config.project_key || existing?.project_key || 'CMG').toUpperCase(),
       connected: true,
       updated_at: new Date().toISOString()
     };
@@ -63,7 +77,7 @@ class JiraService {
     const cfg = db.findOne('jira_configs', { project_id: projectId });
     
     // Check if user has connected a real live Jira domain
-    if (cfg && cfg.jira_url && cfg.username && cfg.api_token_raw && !cfg.jira_url.includes('example.com') && !cfg.jira_url.includes('inspectron.atlassian.net')) {
+    if (cfg && cfg.jira_url && cfg.username && (cfg.encrypted_api_token || cfg.api_token_raw) && !cfg.jira_url.includes('example.com') && !cfg.jira_url.includes('inspectron.atlassian.net')) {
       try {
         return await this.fetchLiveJiraIssues(cfg, query);
       } catch (err) {
@@ -150,10 +164,15 @@ class JiraService {
    * Fetch live from Atlassian Jira Cloud REST API v3
    */
   async fetchLiveJiraIssues(cfg, query) {
+    if (!isSafeUrl(cfg.jira_url)) {
+      throw new Error('BLOCKED_SSRF: The target Jira URL resolves to an internal or private address.');
+    }
+
+    const token = cfg.encrypted_api_token ? decryptSecret(cfg.encrypted_api_token) : (cfg.api_token_raw || '');
     const jql = query ? `text ~ "${query}" ORDER BY updated DESC` : `project = "${cfg.project_key}" ORDER BY updated DESC`;
     const url = new URL(`${cfg.jira_url}/rest/api/3/search?jql=${encodeURIComponent(jql)}&maxResults=20`);
 
-    const authHeader = 'Basic ' + Buffer.from(`${cfg.username}:${cfg.api_token_raw}`).toString('base64');
+    const authHeader = 'Basic ' + Buffer.from(`${cfg.username}:${token}`).toString('base64');
 
     return new Promise((resolve, reject) => {
       const client = url.protocol === 'https:' ? https : http;
