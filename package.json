@@ -1,7 +1,7 @@
 {
-  "name": "ai-qa-assistant",
+  "name": "inspectron",
   "version": "1.0.0",
-  "description": "AI QA Assistant - Production-ready platform for QA Engineering & Automation",
+  "description": "Inspectron - Autonomous AI QA Platform & Quality Engineering Suite",
   "private": true,
   "scripts": {
     "build": "cd client && npm install && npm run build",

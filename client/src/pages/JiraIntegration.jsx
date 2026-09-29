@@ -21,9 +21,9 @@ export default function JiraIntegration({ onNavigateToRepository }) {
   const toast = useToast();
 
   const [config, setConfig] = useState({
-    jira_url: 'https://cmgalaxy.atlassian.net',
+    jira_url: 'https://inspectron.atlassian.net',
     project_key: 'CMG',
-    username: 'qa-automation@cmgalaxy.io',
+    username: 'qa-automation@inspectron.io',
     api_token_masked: '••••••••••••3a9F',
     connected: true
   });

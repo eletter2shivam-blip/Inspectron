@@ -2,7 +2,7 @@
 
 ## 1. Executive Summary
 
-This report provides an end-to-end verification and traceability analysis of the **CM Galaxy User Registration / Signup Flow** (`https://platform.cmgalaxy.com/sign-up`). All automated tests have been executed against the live production environment using the enterprise **Selenium WebDriver 4 + TestNG + Java 17** framework.
+This report provides an end-to-end verification and traceability analysis of the **CM Galaxy User Registration / Signup Flow** (`https://platform.inspectron.com/sign-up`). All automated tests have been executed against the live production environment using the enterprise **Selenium WebDriver 4 + TestNG + Java 17** framework.
 
 ### Key Metrics Dashboard
 
@@ -116,5 +116,5 @@ The table below maps each automated scenario ID directly to its corresponding Te
 
 - **Explicit Waits Only**: Zero instances of `Thread.sleep()` across all page objects and test classes.
 - **Robust Locators**: Zero absolute XPaths (`/html/body/...`). All locators utilize semantic HTML IDs (`first_name`, `last_name`, `user_email`, `password`, `re_password`), CSS attributes, and isolated relative XPaths.
-- **Dynamic Test Data**: Automated runs generate collision-proof dynamic emails (`qa.test.<timestamp>@cmgalaxy-test.com`) preventing data contamination across runs.
+- **Dynamic Test Data**: Automated runs generate collision-proof dynamic emails (`qa.test.<timestamp>@inspectron-test.com`) preventing data contamination across runs.
 - **Sensitive Data Redaction**: Passwords, OTP codes, and authentication tokens are masked in both Log4j2 console logs and ExtentReports (`ReportLogger.java`).

@@ -57,10 +57,10 @@ export default function Projects() {
   };
 
   const handleResetDemo = async () => {
-    if (!window.confirm('Reset all demo data to fresh CMGalaxy state? This will refresh demo requirements, bugs, and test cases.')) return;
+    if (!window.confirm('Reset all demo data to fresh Inspectron state? This will refresh demo requirements, bugs, and test cases.')) return;
     try {
       await api.post('/projects/reset-demo');
-      toast.success('CMGalaxy demo project restored successfully with 12 modules!');
+      toast.success('Inspectron demo project restored successfully with 12 modules!');
       refreshProjects();
     } catch (err) {
       toast.error('Failed to reset demo data.');
@@ -180,7 +180,7 @@ export default function Projects() {
 
               <div className="pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
                 <span className="font-mono text-[10px] text-slate-500">ID: {proj.id}</span>
-                {proj.id !== 'proj-cmgalaxy-01' && (
+                {proj.id !== 'proj-inspectron-01' && (
                   <button
                     onClick={() => handleDelete(proj.id, proj.name)}
                     className="text-slate-500 hover:text-rose-400 p-1"

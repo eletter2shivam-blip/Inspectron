@@ -20,7 +20,7 @@ exports.getRegressionTests = (req, res, next) => {
 exports.generateRegressionTests = async (req, res, next) => {
   try {
     const {
-      project_id = 'proj-cmgalaxy-01',
+      project_id = 'proj-inspectron-01',
       requirement,
       requirement_id,
       existing_test_cases,

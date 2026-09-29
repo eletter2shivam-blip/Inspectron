@@ -6,7 +6,7 @@ export default function Login({ onLoginSuccess }) {
   const { login, register } = useAuth();
   const [isRegister, setIsRegister] = useState(false);
 
-  const [email, setEmail] = useState('lead@cmgalaxy.io');
+  const [email, setEmail] = useState('lead@inspectron.io');
   const [password, setPassword] = useState('password123');
   const [name, setName] = useState('');
   const [role, setRole] = useState('senior_qa');
@@ -49,8 +49,8 @@ export default function Login({ onLoginSuccess }) {
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-600 text-white shadow-xl shadow-brand-500/20 mb-2">
             <Sparkles className="w-6 h-6" />
           </div>
-          <h2 className="text-2xl font-black text-white tracking-tight">AI QA Assistant</h2>
-          <p className="text-xs text-slate-400">Enterprise AI Quality Engineering Platform</p>
+          <h2 className="text-2xl font-black text-white tracking-tight">Inspectron</h2>
+          <p className="text-xs text-slate-400">Autonomous AI QA & Quality Engineering Platform</p>
         </div>
 
         {/* Demo Quick Logins */}
@@ -61,7 +61,7 @@ export default function Login({ onLoginSuccess }) {
           <div className="grid grid-cols-2 gap-2 text-xs">
             <button
               type="button"
-              onClick={() => handleQuickLogin('lead@cmgalaxy.io')}
+              onClick={() => handleQuickLogin('lead@inspectron.io')}
               className="p-2 rounded-xl bg-slate-800 hover:bg-brand-600/30 hover:border-brand-500 border border-slate-700 text-left transition-colors"
             >
               <div className="font-bold text-white leading-tight">Sarah Jenkins</div>
@@ -69,7 +69,7 @@ export default function Login({ onLoginSuccess }) {
             </button>
             <button
               type="button"
-              onClick={() => handleQuickLogin('qa@cmgalaxy.io')}
+              onClick={() => handleQuickLogin('qa@inspectron.io')}
               className="p-2 rounded-xl bg-slate-800 hover:bg-brand-600/30 hover:border-brand-500 border border-slate-700 text-left transition-colors"
             >
               <div className="font-bold text-white leading-tight">David Chen</div>

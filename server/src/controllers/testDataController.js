@@ -15,7 +15,7 @@ exports.getTestDataSets = (req, res, next) => {
 exports.generateTestData = async (req, res, next) => {
   try {
     const {
-      project_id = 'proj-cmgalaxy-01',
+      project_id = 'proj-inspectron-01',
       field_name = 'email',
       data_type = 'Email',
       format = 'RFC Compliant',

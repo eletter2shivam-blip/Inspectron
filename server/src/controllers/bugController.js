@@ -26,7 +26,7 @@ exports.getBugById = (req, res, next) => {
 exports.analyzeBug = async (req, res, next) => {
   try {
     const {
-      project_id = 'proj-cmgalaxy-01',
+      project_id = 'proj-inspectron-01',
       title,
       description,
       steps_to_reproduce,

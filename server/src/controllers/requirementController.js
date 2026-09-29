@@ -36,7 +36,7 @@ exports.analyzeRequirement = async (req, res, next) => {
     const project = project_id ? db.findById('projects', project_id) : null;
     const context = {
       projectId: project_id,
-      projectName: project ? project.name : 'CMGalaxy',
+      projectName: project ? project.name : 'Inspectron',
       modules: project ? project.modules : []
     };
 
@@ -44,13 +44,13 @@ exports.analyzeRequirement = async (req, res, next) => {
     const analysis = await aiService.analyzeRequirement(requirement_text, context, req.user);
 
     // Generate requirement ID
-    const count = db.count('requirements', { project_id: project_id || 'proj-cmgalaxy-01' });
+    const count = db.count('requirements', { project_id: project_id || 'proj-inspectron-01' });
     const reqId = `REQ-${(project?.name || 'CMG').slice(0, 3).toUpperCase()}-${String(count + 1).padStart(3, '0')}`;
 
     // Auto-create or save requirement record if requested
     const saved = db.insert('requirements', {
       id: reqId,
-      project_id: project_id || 'proj-cmgalaxy-01',
+      project_id: project_id || 'proj-inspectron-01',
       title: title || analysis.summary.slice(0, 60) + '...',
       source,
       status: 'Analyzed',

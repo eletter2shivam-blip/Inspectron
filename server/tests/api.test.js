@@ -5,7 +5,7 @@ const { app, server } = require('../src/index');
 let authToken = '';
 const BASE_URL = 'http://localhost:5000/api';
 
-test('AI QA Assistant Backend Suite', async (t) => {
+test('Inspectron QA Assistant Backend Suite', async (t) => {
   // Wait 500ms for server to bind
   await new Promise(r => setTimeout(r, 500));
 
@@ -21,13 +21,13 @@ test('AI QA Assistant Backend Suite', async (t) => {
     const res = await fetch(`${BASE_URL}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: 'lead@cmgalaxy.io', password: 'password123' })
+      body: JSON.stringify({ email: 'lead@inspectron.io', password: 'password123' })
     });
     assert.strictEqual(res.status, 200);
     const body = await res.json();
     assert.strictEqual(body.success, true);
     assert.ok(body.token);
-    assert.strictEqual(body.user.email, 'lead@cmgalaxy.io');
+    assert.strictEqual(body.user.email, 'lead@inspectron.io');
     authToken = body.token;
   });
 
@@ -52,7 +52,7 @@ test('AI QA Assistant Backend Suite', async (t) => {
       },
       body: JSON.stringify({
         requirement_text: story,
-        project_id: 'proj-cmgalaxy-01',
+        project_id: 'proj-inspectron-01',
         title: 'Campaign Analytics Date & Tag Filtering'
       })
     });
@@ -74,7 +74,7 @@ test('AI QA Assistant Backend Suite', async (t) => {
         'Authorization': `Bearer ${authToken}`
       },
       body: JSON.stringify({
-        project_id: 'proj-cmgalaxy-01',
+        project_id: 'proj-inspectron-01',
         requirement_text: 'As a user, I want to upload a CSV file with max 10MB to import campaign leads.',
         module: 'Campaign',
         feature: 'Lead CSV Import',
@@ -101,7 +101,7 @@ test('AI QA Assistant Backend Suite', async (t) => {
     const res = await fetch(`${BASE_URL}/testcases/audit-quality`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ projectId: 'proj-cmgalaxy-01' })
+      body: JSON.stringify({ projectId: 'proj-inspectron-01' })
     });
 
     assert.strictEqual(res.status, 200);
@@ -119,7 +119,7 @@ test('AI QA Assistant Backend Suite', async (t) => {
         'Authorization': `Bearer ${authToken}`
       },
       body: JSON.stringify({
-        project_id: 'proj-cmgalaxy-01',
+        project_id: 'proj-inspectron-01',
         method: 'POST',
         endpoint: '/api/v1/campaigns',
         request_body: { name: 'Growth Campaign', daily_budget: 100 },
@@ -134,7 +134,7 @@ test('AI QA Assistant Backend Suite', async (t) => {
     assert.ok(body.api_tests.length >= 4);
 
     // Test Postman collection export
-    const exportRes = await fetch(`${BASE_URL}/api-tests/export/postman?projectId=proj-cmgalaxy-01`);
+    const exportRes = await fetch(`${BASE_URL}/api-tests/export/postman?projectId=proj-inspectron-01`);
     assert.strictEqual(exportRes.status, 200);
     const col = await exportRes.json();
     assert.ok(col.info);
@@ -149,7 +149,7 @@ test('AI QA Assistant Backend Suite', async (t) => {
         'Authorization': `Bearer ${authToken}`
       },
       body: JSON.stringify({
-        project_id: 'proj-cmgalaxy-01',
+        project_id: 'proj-inspectron-01',
         requirement_text: 'Users can submit promo discount codes at checkout.'
       })
     });
@@ -168,7 +168,7 @@ test('AI QA Assistant Backend Suite', async (t) => {
         'Authorization': `Bearer ${authToken}`
       },
       body: JSON.stringify({
-        project_id: 'proj-cmgalaxy-01',
+        project_id: 'proj-inspectron-01',
         field_name: 'phone_number',
         data_type: 'Phone',
         quantity: 10
@@ -195,7 +195,7 @@ test('AI QA Assistant Backend Suite', async (t) => {
         'Authorization': `Bearer ${authToken}`
       },
       body: JSON.stringify({
-        project_id: 'proj-cmgalaxy-01',
+        project_id: 'proj-inspectron-01',
         title: 'Google Ads budget decimal rounding error overcharges client',
         steps_to_reproduce: '1. Set campaign budget to $14.99\n2. Sync to Google Ads API\n3. Check invoice',
         expected_result: 'Google Ads budget set to exactly 1499 micros without rounding up.',
@@ -212,7 +212,7 @@ test('AI QA Assistant Backend Suite', async (t) => {
   });
 
   await t.test('11. Requirement -> Test Traceability Matrix computes coverage', async () => {
-    const res = await fetch(`${BASE_URL}/coverage/matrix?projectId=proj-cmgalaxy-01`);
+    const res = await fetch(`${BASE_URL}/coverage/matrix?projectId=proj-inspectron-01`);
     assert.strictEqual(res.status, 200);
     const body = await res.json();
     assert.strictEqual(body.success, true);
@@ -222,7 +222,7 @@ test('AI QA Assistant Backend Suite', async (t) => {
 
   await t.test('12. Jira Integration fetches tickets and generates test cases directly', async () => {
     // 1. Search issues
-    const res = await fetch(`${BASE_URL}/jira/issues/search?projectId=proj-cmgalaxy-01`);
+    const res = await fetch(`${BASE_URL}/jira/issues/search?projectId=proj-inspectron-01`);
     assert.strictEqual(res.status, 200);
     const issues = (await res.json()).issues;
     assert.ok(issues.length > 0);
@@ -234,7 +234,7 @@ test('AI QA Assistant Backend Suite', async (t) => {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${authToken}`
       },
-      body: JSON.stringify({ projectId: 'proj-cmgalaxy-01', auto_save: true })
+      body: JSON.stringify({ projectId: 'proj-inspectron-01', auto_save: true })
     });
     assert.strictEqual(genRes.status, 200);
     const genBody = await genRes.json();
@@ -243,11 +243,11 @@ test('AI QA Assistant Backend Suite', async (t) => {
   });
 
   await t.test('13. Export test cases to Excel (.xlsx) and CSV', async () => {
-    const xlsxRes = await fetch(`${BASE_URL}/export/testcases?format=xlsx&projectId=proj-cmgalaxy-01`);
+    const xlsxRes = await fetch(`${BASE_URL}/export/testcases?format=xlsx&projectId=proj-inspectron-01`);
     assert.strictEqual(xlsxRes.status, 200);
     assert.strictEqual(xlsxRes.headers.get('content-type'), 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 
-    const csvRes = await fetch(`${BASE_URL}/export/testcases?format=csv&projectId=proj-cmgalaxy-01`);
+    const csvRes = await fetch(`${BASE_URL}/export/testcases?format=csv&projectId=proj-inspectron-01`);
     assert.strictEqual(csvRes.status, 200);
     const csvText = await csvRes.text();
     assert.ok(csvText.includes('Test Case ID'));
@@ -255,7 +255,7 @@ test('AI QA Assistant Backend Suite', async (t) => {
   });
 
   await t.test('14. Automation script generation produces Playwright and Selenium code', async () => {
-    const tcRes = await fetch(`${BASE_URL}/testcases?projectId=proj-cmgalaxy-01&limit=1`);
+    const tcRes = await fetch(`${BASE_URL}/testcases?projectId=proj-inspectron-01&limit=1`);
     const tc = (await tcRes.json()).test_cases[0];
 
     const pwRes = await fetch(`${BASE_URL}/export/script`, {

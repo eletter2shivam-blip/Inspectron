@@ -201,7 +201,7 @@ export default function TestDataGenerator() {
             type="text"
             value={businessRules}
             onChange={(e) => setBusinessRules(e.target.value)}
-            placeholder="e.g. Allowed domains: cmgalaxy.io, enterprise-corp.com"
+            placeholder="e.g. Allowed domains: inspectron.io, enterprise-corp.com"
             className="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-brand-500"
           />
         </div>

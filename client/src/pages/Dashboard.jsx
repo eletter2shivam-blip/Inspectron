@@ -56,7 +56,7 @@ export default function Dashboard({ onNavigate }) {
             <span>Autonomous QA Engineering & Generation Suite</span>
           </div>
           <h1 className="text-3xl font-extrabold text-white tracking-tight sm:text-4xl">
-            {activeProject?.name || 'CMGalaxy'} QA Operations
+            {activeProject?.name || 'Inspectron'} QA Operations
           </h1>
           <p className="mt-2 text-sm text-slate-300 leading-relaxed">
             AI-powered requirements synthesis, Jira issue decomposition, automated API test design, and regression impact analysis.

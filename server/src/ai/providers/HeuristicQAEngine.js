@@ -41,7 +41,7 @@ class HeuristicQAEngine {
    */
   async analyzeRequirement(requirementText, context = {}) {
     const { hasAuth, hasApi, hasPayment, hasSearch, hasUpload, actor, action } = this.extractConcepts(requirementText);
-    const projectName = context.projectName || 'CMGalaxy';
+    const projectName = context.projectName || 'Inspectron';
 
     const actors = [
       actor.charAt(0).toUpperCase() + actor.slice(1),
@@ -679,7 +679,7 @@ pm.test("Error message is present", function () {
     const rand = Math.floor(1000 + Math.random() * 9000);
 
     if (t.includes('email')) {
-      if (variant === 'valid') return `qa.engineer.${index}@cmgalaxy.io`;
+      if (variant === 'valid') return `qa.engineer.${index}@inspectron.io`;
       if (variant === 'valid2') return `sarah.jenkins+test${index}@enterprise-corp.com`;
       if (variant === 'min_boundary') return `a@b.co`;
       if (variant === 'max_boundary') return `user_with_very_long_valid_local_part_at_threshold_${rand}@long-domain-name-testing.org`;
@@ -728,10 +728,10 @@ pm.test("Error message is present", function () {
     }
 
     if (t.includes('url')) {
-      if (variant === 'valid') return `https://app.cmgalaxy.io/campaigns/${index}`;
+      if (variant === 'valid') return `https://app.inspectron.io/campaigns/${index}`;
       if (variant === 'missing_format') return `htp:/broken-url`;
       if (variant === 'xss_payload') return `javascript:alert(document.cookie)`;
-      return `https://cdn.cmgalaxy.io/assets/mock_item_${index}.json`;
+      return `https://cdn.inspectron.io/assets/mock_item_${index}.json`;
     }
 
     // Default Name / Generic

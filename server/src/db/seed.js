@@ -12,7 +12,7 @@ async function seedDatabase(force = false) {
     db.clear();
   }
 
-  console.log('Seeding AI QA Assistant with CMGalaxy demo data...');
+  console.log('Seeding AI QA Assistant with Inspectron demo data...');
 
   // 1. Users
   const salt = await bcrypt.genSalt(10);
@@ -22,7 +22,7 @@ async function seedDatabase(force = false) {
     {
       id: 'usr-lead-001',
       name: 'Sarah Jenkins',
-      email: 'lead@cmgalaxy.io',
+      email: 'lead@inspectron.io',
       password: passwordHash,
       role: 'qa_lead',
       title: 'Principal QA Architect'
@@ -30,7 +30,7 @@ async function seedDatabase(force = false) {
     {
       id: 'usr-qa-002',
       name: 'David Chen',
-      email: 'qa@cmgalaxy.io',
+      email: 'qa@inspectron.io',
       password: passwordHash,
       role: 'senior_qa',
       title: 'Senior SDET Engineer'
@@ -38,7 +38,7 @@ async function seedDatabase(force = false) {
     {
       id: 'usr-analyst-003',
       name: 'Maya Rodriguez',
-      email: 'maya@cmgalaxy.io',
+      email: 'maya@inspectron.io',
       password: passwordHash,
       role: 'qa_engineer',
       title: 'QA Automation Engineer'
@@ -46,12 +46,12 @@ async function seedDatabase(force = false) {
   ];
   db.insertMany('users', users);
 
-  // 2. Demo Project: CMGalaxy
-  const cmgalaxyProject = {
-    id: 'proj-cmgalaxy-01',
-    name: 'CMGalaxy',
+  // 2. Demo Project: Inspectron
+  const inspectronProject = {
+    id: 'proj-inspectron-01',
+    name: 'Inspectron',
     description: 'Enterprise AI-driven Multi-channel Campaign Marketing and Attribution Platform',
-    application_name: 'CMGalaxy Cloud SaaS',
+    application_name: 'Inspectron Cloud SaaS',
     environment: 'Staging / Production',
     technology: 'React, Node.js, GraphQL, PostgreSQL, Redis, Google Ads API, Meta Marketing API',
     modules: [
@@ -69,7 +69,7 @@ async function seedDatabase(force = false) {
       'User Management'
     ]
   };
-  db.insert('projects', cmgalaxyProject);
+  db.insert('projects', inspectronProject);
 
   // 3. Prompt Versions (Section 19: Modular AI Prompts & Versioning)
   const promptVersions = [
@@ -172,19 +172,19 @@ Include: valid, invalid, boundary, negative, and edge-case values. Never output 
   ];
   db.insertMany('prompt_versions', promptVersions);
 
-  // 4. Sample Requirements for CMGalaxy
+  // 4. Sample Requirements for Inspectron
   const req1 = {
     id: 'REQ-CMG-001',
-    project_id: 'proj-cmgalaxy-01',
+    project_id: 'proj-inspectron-01',
     title: 'Self-Service Password Reset via Secure Email Link',
     source: 'Jira (CMG-104)',
     status: 'Analyzed',
-    raw_text: 'As a registered CMGalaxy user, I want to reset my password using my registered email so that I can securely regain access to my campaign dashboard if I forget my credentials. The link should expire in 15 minutes, allow only 1 reset per token, and require a strong password (min 8 chars, 1 uppercase, 1 special char, 1 number). Rate limit reset requests to 3 per hour per IP/email.',
+    raw_text: 'As a registered Inspectron user, I want to reset my password using my registered email so that I can securely regain access to my campaign dashboard if I forget my credentials. The link should expire in 15 minutes, allow only 1 reset per token, and require a strong password (min 8 chars, 1 uppercase, 1 special char, 1 number). Rate limit reset requests to 3 per hour per IP/email.',
     analysis_result: {
       summary: 'Self-service password reset workflow initiating a 15-minute cryptographically secure single-use token sent to verified email, with rate limiting and strict complexity validation.',
-      actors: ['Registered CMGalaxy User', 'Unregistered User / Attacker', 'Identity Auth Service', 'SendGrid Mailer Service'],
+      actors: ['Registered Inspectron User', 'Unregistered User / Attacker', 'Identity Auth Service', 'SendGrid Mailer Service'],
       preconditions: [
-        'User account exists in CMGalaxy PostgreSQL database',
+        'User account exists in Inspectron PostgreSQL database',
         'User account is not suspended or soft-deleted',
         'SendGrid SMTP/API relay is healthy and reachable'
       ],
@@ -245,18 +245,18 @@ Include: valid, invalid, boundary, negative, and edge-case values. Never output 
 
   const req2 = {
     id: 'REQ-CMG-002',
-    project_id: 'proj-cmgalaxy-01',
+    project_id: 'proj-inspectron-01',
     title: 'Omnichannel Campaign Creation with Google Ads & Meta Ads Sync',
     source: 'PRD-Campaign-Engine',
     status: 'Analyzed',
-    raw_text: 'As an agency marketing lead, I want to create a unified marketing campaign in CMGalaxy and simultaneously push budgets, audiences, and ad creative to Google Ads and Meta Ads Manager, so that I can manage omnichannel campaigns from one single dashboard without context switching.',
+    raw_text: 'As an agency marketing lead, I want to create a unified marketing campaign in Inspectron and simultaneously push budgets, audiences, and ad creative to Google Ads and Meta Ads Manager, so that I can manage omnichannel campaigns from one single dashboard without context switching.',
     analysis_result: {
       summary: 'Centralized campaign publishing pipeline that maps unified creative and budget payloads into Google Ads API v16 and Meta Marketing API v19, handling async sync jobs and rollbacks.',
       actors: ['Marketing Campaign Manager', 'Agency Admin', 'Google Ads API Client', 'Meta Graph API Client'],
       preconditions: [
         'User has authenticated OAuth2 connections for both Google Ads and Meta Ads',
         'Target ad accounts have active billing profiles and admin permissions',
-        'CMGalaxy campaign budget is >= $5.00/day minimum threshold'
+        'Inspectron campaign budget is >= $5.00/day minimum threshold'
       ],
       business_rules: [
         'Total budget must be allocated in positive integer cents',
@@ -297,7 +297,7 @@ Include: valid, invalid, boundary, negative, and edge-case values. Never output 
   // 5. Sample Jira Issues
   const jiraIssue = {
     id: 'jira-cmg-104',
-    project_id: 'proj-cmgalaxy-01',
+    project_id: 'proj-inspectron-01',
     issue_key: 'CMG-104',
     summary: 'Implement secure self-service password reset flow with 15min expiry',
     description: 'We need to implement a secure password reset flow using single-use 15min tokens as outlined in Security PRD v2. Rate limiting must prevent brute-force attacks.',
@@ -318,18 +318,18 @@ Include: valid, invalid, boundary, negative, and edge-case values. Never output 
   const testCases = [
     {
       id: 'TC-CMG-001',
-      project_id: 'proj-cmgalaxy-01',
+      project_id: 'proj-inspectron-01',
       requirement_id: 'REQ-CMG-001',
       module: 'Login',
       feature: 'Password Reset',
       scenario: 'Successful password reset with valid email and strong password',
       title: 'Verify user can successfully reset password using valid link and compliant credentials',
-      preconditions: 'User test.user@cmgalaxy.io exists in database with status=ACTIVE and verified email.',
-      test_data: 'Email: test.user@cmgalaxy.io, New Password: "P@ssword2026!Cm"',
+      preconditions: 'User test.user@inspectron.io exists in database with status=ACTIVE and verified email.',
+      test_data: 'Email: test.user@inspectron.io, New Password: "P@ssword2026!Cm"',
       steps: [
-        '1. Navigate to https://app.cmgalaxy.io/login',
+        '1. Navigate to https://app.inspectron.io/login',
         '2. Click "Forgot Password" link',
-        '3. Enter registered email "test.user@cmgalaxy.io" and click "Send Reset Link"',
+        '3. Enter registered email "test.user@inspectron.io" and click "Send Reset Link"',
         '4. Open received email in inbox and click the reset URL',
         '5. On password reset page, enter "P@ssword2026!Cm" in New Password and Confirm Password',
         '6. Click "Update Password" button'
@@ -344,7 +344,7 @@ Include: valid, invalid, boundary, negative, and edge-case values. Never output 
     },
     {
       id: 'TC-CMG-002',
-      project_id: 'proj-cmgalaxy-01',
+      project_id: 'proj-inspectron-01',
       requirement_id: 'REQ-CMG-001',
       module: 'Login',
       feature: 'Password Reset',
@@ -353,7 +353,7 @@ Include: valid, invalid, boundary, negative, and edge-case values. Never output 
       preconditions: 'A password reset token was requested at T-16 minutes and has expired.',
       test_data: 'Expired token: "tkn_exp_9a8b7c6d5e4f3a2b1"',
       steps: [
-        '1. Open browser with expired reset URL https://app.cmgalaxy.io/reset-password?token=tkn_exp_9a8b7c6d5e4f3a2b1',
+        '1. Open browser with expired reset URL https://app.inspectron.io/reset-password?token=tkn_exp_9a8b7c6d5e4f3a2b1',
         '2. Verify page displays token expiration alert banner',
         '3. Enter valid new password and submit form'
       ],
@@ -367,7 +367,7 @@ Include: valid, invalid, boundary, negative, and edge-case values. Never output 
     },
     {
       id: 'TC-CMG-003',
-      project_id: 'proj-cmgalaxy-01',
+      project_id: 'proj-inspectron-01',
       requirement_id: 'REQ-CMG-001',
       module: 'Login',
       feature: 'Password Reset',
@@ -376,7 +376,7 @@ Include: valid, invalid, boundary, negative, and edge-case values. Never output 
       preconditions: 'Token was previously used to change password 2 minutes ago.',
       test_data: 'Used token: "tkn_used_11223344556677"',
       steps: [
-        '1. Re-open reset URL https://app.cmgalaxy.io/reset-password?token=tkn_used_11223344556677',
+        '1. Re-open reset URL https://app.inspectron.io/reset-password?token=tkn_used_11223344556677',
         '2. Attempt to input new password and submit'
       ],
       expected_result: 'API returns HTTP 400 Bad Request with error "Token has already been consumed". Form is disabled.',
@@ -389,7 +389,7 @@ Include: valid, invalid, boundary, negative, and edge-case values. Never output 
     },
     {
       id: 'TC-CMG-004',
-      project_id: 'proj-cmgalaxy-01',
+      project_id: 'proj-inspectron-01',
       requirement_id: 'REQ-CMG-001',
       module: 'Login',
       feature: 'Password Reset',
@@ -413,16 +413,16 @@ Include: valid, invalid, boundary, negative, and edge-case values. Never output 
     },
     {
       id: 'TC-CMG-005',
-      project_id: 'proj-cmgalaxy-01',
+      project_id: 'proj-inspectron-01',
       requirement_id: 'REQ-CMG-001',
       module: 'Login',
       feature: 'Rate Limiting',
       scenario: 'Exceeding maximum allowed password reset requests (rate limit trigger)',
       title: 'Verify rate limiting triggers HTTP 429 when submitting >3 reset requests within 1 hour',
       preconditions: 'Client IP/email has already dispatched 3 reset requests within the last 15 minutes.',
-      test_data: 'Email: test.user@cmgalaxy.io, Request count: 4',
+      test_data: 'Email: test.user@inspectron.io, Request count: 4',
       steps: [
-        '1. Submit 4th password reset request for test.user@cmgalaxy.io',
+        '1. Submit 4th password reset request for test.user@inspectron.io',
         '2. Inspect network tab and UI response'
       ],
       expected_result: 'API returns HTTP 429 with header "Retry-After: 3600". UI shows "Too many requests. Please try again in 1 hour."',
@@ -435,7 +435,7 @@ Include: valid, invalid, boundary, negative, and edge-case values. Never output 
     },
     {
       id: 'TC-CMG-006',
-      project_id: 'proj-cmgalaxy-01',
+      project_id: 'proj-inspectron-01',
       requirement_id: 'REQ-CMG-002',
       module: 'Campaign',
       feature: 'Omnichannel Publishing',
@@ -459,7 +459,7 @@ Include: valid, invalid, boundary, negative, and edge-case values. Never output 
     },
     {
       id: 'TC-CMG-007',
-      project_id: 'proj-cmgalaxy-01',
+      project_id: 'proj-inspectron-01',
       requirement_id: 'REQ-CMG-002',
       module: 'Campaign',
       feature: 'Google Ads',
@@ -487,14 +487,14 @@ Include: valid, invalid, boundary, negative, and edge-case values. Never output 
   const apiTests = [
     {
       id: 'api-tc-001',
-      project_id: 'proj-cmgalaxy-01',
+      project_id: 'proj-inspectron-01',
       api_test_id: 'API-CMG-001',
       method: 'POST',
       endpoint: '/api/v1/auth/password-reset-request',
       headers: { 'Content-Type': 'application/json' },
       query_params: {},
       path_params: {},
-      request_body: { email: 'test.user@cmgalaxy.io' },
+      request_body: { email: 'test.user@inspectron.io' },
       test_data: 'Valid registered email in body',
       expected_status_code: 200,
       expected_response: { success: true, message: 'If an account exists, a reset link has been dispatched.' },
@@ -511,7 +511,7 @@ pm.test("Response contains generic security message", function () {
     },
     {
       id: 'api-tc-002',
-      project_id: 'proj-cmgalaxy-01',
+      project_id: 'proj-inspectron-01',
       api_test_id: 'API-CMG-002',
       method: 'POST',
       endpoint: '/api/v1/auth/reset-password',
@@ -537,7 +537,7 @@ pm.test("Error code matches contract", function () {
     },
     {
       id: 'api-tc-003',
-      project_id: 'proj-cmgalaxy-01',
+      project_id: 'proj-inspectron-01',
       api_test_id: 'API-CMG-003',
       method: 'POST',
       endpoint: '/api/v1/campaigns',
@@ -553,7 +553,7 @@ pm.test("Error code matches contract", function () {
         channels: ['GOOGLE_ADS', 'META_ADS'],
         creative: {
           headline: 'Boost Your ROI',
-          asset_url: 'https://cdn.cmgalaxy.io/assets/creative_1.png'
+          asset_url: 'https://cdn.inspectron.io/assets/creative_1.png'
         }
       },
       test_data: 'Valid campaign creation payload with auth token',
@@ -577,13 +577,13 @@ pm.test("Response contains campaign ID", function () {
   const regressionTests = [
     {
       id: 'reg-cmg-001',
-      project_id: 'proj-cmgalaxy-01',
+      project_id: 'proj-inspectron-01',
       regression_id: 'REG-CMG-001',
       affected_module: 'Login',
       related_requirement: 'REQ-CMG-001',
       scenario: 'Existing active session invalidation after password reset',
       steps: [
-        '1. Log into CMGalaxy on Device A (Session 1) and Device B (Session 2)',
+        '1. Log into Inspectron on Device A (Session 1) and Device B (Session 2)',
         '2. On Device A, initiate and complete password reset',
         '3. On Device B, refresh page and attempt to fetch /api/v1/user/profile'
       ],
@@ -595,7 +595,7 @@ pm.test("Response contains campaign ID", function () {
     },
     {
       id: 'reg-cmg-002',
-      project_id: 'proj-cmgalaxy-01',
+      project_id: 'proj-inspectron-01',
       affected_module: 'User Management',
       related_requirement: 'REQ-CMG-001',
       scenario: 'Admin manual password reset trigger should not bypass rate limit counter',
@@ -612,7 +612,7 @@ pm.test("Response contains campaign ID", function () {
     },
     {
       id: 'reg-cmg-003',
-      project_id: 'proj-cmgalaxy-01',
+      project_id: 'proj-inspectron-01',
       affected_module: 'Google Ads',
       related_requirement: 'REQ-CMG-002',
       scenario: 'Existing running campaigns budget sync integrity when new campaign is added',
@@ -633,10 +633,10 @@ pm.test("Response contains campaign ID", function () {
   // 9. Sample Bug (Section 11)
   const sampleBug = {
     id: 'bug-cmg-201',
-    project_id: 'proj-cmgalaxy-01',
+    project_id: 'proj-inspectron-01',
     title: 'Meta Ads OAuth Token Expiration Causes Silent Sync Failures Without Notification',
-    description: 'When a connected Meta Ads account token expires or permissions are revoked by user on Facebook, CMGalaxy campaign creation enters an infinite retry loop without alerting the marketing manager or updating the UI error badge.',
-    steps_to_reproduce: '1. Connect Meta Ads account\n2. In Facebook Business Manager, revoke app permissions\n3. In CMGalaxy, create new campaign targeting Meta Ads\n4. Click Publish Campaign',
+    description: 'When a connected Meta Ads account token expires or permissions are revoked by user on Facebook, Inspectron campaign creation enters an infinite retry loop without alerting the marketing manager or updating the UI error badge.',
+    steps_to_reproduce: '1. Connect Meta Ads account\n2. In Facebook Business Manager, revoke app permissions\n3. In Inspectron, create new campaign targeting Meta Ads\n4. Click Publish Campaign',
     expected_result: 'Sync worker detects token revocation (Meta code 190), halts retry loop, marks campaign as "Sync Error: Token Expired", and triggers notification toast and email.',
     actual_result: 'Campaign remains stuck in "Publishing (45%)" indefinitely. Worker logs flooded with unhandled 400 Bad Request.',
     environment: 'Staging & Production',
@@ -676,23 +676,23 @@ pm.test("Response contains campaign ID", function () {
   // 10. Sample Test Data Sets (Section 10)
   const testDataSet = {
     id: 'tds-cmg-001',
-    project_id: 'proj-cmgalaxy-01',
-    name: 'CMGalaxy User Auth & Email Test Set',
+    project_id: 'proj-inspectron-01',
+    name: 'Inspectron User Auth & Email Test Set',
     field_name: 'email',
     data_type: 'Email',
     format: 'RFC 5322 Compliant & Edge Cases',
     quantity: 10,
     records: [
       { id: 1, type: 'valid', value: 'alex.rivera@enterprise-corp.com', note: 'Standard corporate domain' },
-      { id: 2, type: 'valid', value: 'qa.test+tag99@cmgalaxy.io', note: 'Plus addressing tag' },
+      { id: 2, type: 'valid', value: 'qa.test+tag99@inspectron.io', note: 'Plus addressing tag' },
       { id: 3, type: 'boundary', value: 'a@b.co', note: 'Minimum valid RFC email length' },
       { id: 4, type: 'boundary', value: 'user_with_very_long_local_part_exceeding_standard_typical_name@subdomain.domain.org', note: '64 char local part limit' },
       { id: 5, type: 'invalid', value: 'missing-at-sign.domain.com', note: 'Missing @ symbol' },
       { id: 6, type: 'invalid', value: 'user@.domain.com', note: 'Leading dot in domain' },
       { id: 7, type: 'negative', value: 'user@domain..com', note: 'Consecutive dots in host' },
-      { id: 8, type: 'negative', value: '<script>alert(1)</script>@cmgalaxy.io', note: 'XSS injection attempt' },
+      { id: 8, type: 'negative', value: '<script>alert(1)</script>@inspectron.io', note: 'XSS injection attempt' },
       { id: 9, type: 'random', value: 'k7f2910_mock@cloud-sandbox.net', note: 'Randomized synthetic address' },
-      { id: 10, type: 'realistic', value: 'david.chen@cmgalaxy.io', note: 'Realistic demo engineer' }
+      { id: 10, type: 'realistic', value: 'david.chen@inspectron.io', note: 'Realistic demo engineer' }
     ]
   };
   db.insert('test_data_sets', testDataSet);
@@ -701,7 +701,7 @@ pm.test("Response contains campaign ID", function () {
   const coverageRecords = [
     {
       id: 'cov-001',
-      project_id: 'proj-cmgalaxy-01',
+      project_id: 'proj-inspectron-01',
       requirement_id: 'REQ-CMG-001',
       requirement_title: 'Self-Service Password Reset via Secure Email Link',
       test_case_ids: ['TC-CMG-001', 'TC-CMG-002', 'TC-CMG-003', 'TC-CMG-004', 'TC-CMG-005'],
@@ -712,7 +712,7 @@ pm.test("Response contains campaign ID", function () {
     },
     {
       id: 'cov-002',
-      project_id: 'proj-cmgalaxy-01',
+      project_id: 'proj-inspectron-01',
       requirement_id: 'REQ-CMG-002',
       requirement_title: 'Omnichannel Campaign Creation with Google Ads & Meta Ads Sync',
       test_case_ids: ['TC-CMG-006', 'TC-CMG-007'],
@@ -727,9 +727,9 @@ pm.test("Response contains campaign ID", function () {
   // 12. Mock Jira Configuration (Section 5)
   const jiraConfig = {
     id: 'jira-cfg-01',
-    project_id: 'proj-cmgalaxy-01',
-    jira_url: 'https://cmgalaxy.atlassian.net',
-    username: 'qa-automation@cmgalaxy.io',
+    project_id: 'proj-inspectron-01',
+    jira_url: 'https://inspectron.atlassian.net',
+    username: 'qa-automation@inspectron.io',
     api_token_masked: '••••••••••••••••••••••••3a9F',
     project_key: 'CMG',
     connected: true
@@ -740,10 +740,10 @@ pm.test("Response contains campaign ID", function () {
   const aiHistory = [
     {
       id: 'ai-hist-001',
-      project_id: 'proj-cmgalaxy-01',
+      project_id: 'proj-inspectron-01',
       feature: 'Requirement Analysis',
       input_type: 'User Story Text',
-      input_payload: 'As a registered CMGalaxy user, I want to reset my password using my registered email...',
+      input_payload: 'As a registered Inspectron user, I want to reset my password using my registered email...',
       generated_output: req1.analysis_result,
       user_id: 'usr-lead-001',
       user_name: 'Sarah Jenkins',
@@ -753,7 +753,7 @@ pm.test("Response contains campaign ID", function () {
     },
     {
       id: 'ai-hist-002',
-      project_id: 'proj-cmgalaxy-01',
+      project_id: 'proj-inspectron-01',
       feature: 'Test Case Generation',
       input_type: 'Requirement ID: REQ-CMG-001',
       input_payload: 'Generated comprehensive test matrix for REQ-CMG-001',
@@ -774,8 +774,8 @@ pm.test("Response contains campaign ID", function () {
       user_id: 'usr-lead-001',
       action: 'PROJECT_INITIALIZED',
       entity: 'Project',
-      entity_id: 'proj-cmgalaxy-01',
-      details: 'Created CMGalaxy demo workspace with 12 modules',
+      entity_id: 'proj-inspectron-01',
+      details: 'Created Inspectron demo workspace with 12 modules',
       ip_address: '127.0.0.1'
     },
     {
@@ -804,7 +804,7 @@ pm.test("Response contains campaign ID", function () {
     description: 'Primary AI Model for QA Generation'
   });
 
-  console.log('Seed completed successfully! CMGalaxy demo project is ready.');
+  console.log('Seed completed successfully! Inspectron demo project is ready.');
 }
 
 if (require.main === module) {

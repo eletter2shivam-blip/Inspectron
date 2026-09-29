@@ -7,7 +7,7 @@ const ProjectContext = createContext(null);
 export function ProjectProvider({ children }) {
   const [projects, setProjects] = useState([]);
   const [selectedProjectId, setSelectedProjectId] = useState(
-    localStorage.getItem('ai_qa_selected_project') || 'proj-cmgalaxy-01'
+    localStorage.getItem('ai_qa_selected_project') || 'proj-inspectron-01'
   );
   const [loading, setLoading] = useState(true);
   const toast = useToast();
@@ -41,8 +41,8 @@ export function ProjectProvider({ children }) {
   };
 
   const activeProject = projects.find(p => p.id === selectedProjectId) || projects[0] || {
-    id: 'proj-cmgalaxy-01',
-    name: 'CMGalaxy',
+    id: 'proj-inspectron-01',
+    name: 'Inspectron',
     modules: ['Dashboard', 'Login', 'Campaign', 'Google Ads', 'Meta Ads', 'Reports']
   };
 

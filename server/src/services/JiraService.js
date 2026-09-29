@@ -40,8 +40,8 @@ class JiraService {
     const cfg = db.findOne('jira_configs', { project_id: projectId });
     if (!cfg) {
       return {
-        jira_url: 'https://cmgalaxy.atlassian.net',
-        username: 'qa-automation@cmgalaxy.io',
+        jira_url: 'https://inspectron.atlassian.net',
+        username: 'qa-automation@inspectron.io',
         api_token_masked: '••••••••••••3a9F',
         project_key: 'CMG',
         connected: true
@@ -63,7 +63,7 @@ class JiraService {
     const cfg = db.findOne('jira_configs', { project_id: projectId });
     
     // Check if user has connected a real live Jira domain
-    if (cfg && cfg.jira_url && cfg.username && cfg.api_token_raw && !cfg.jira_url.includes('example.com') && !cfg.jira_url.includes('cmgalaxy.atlassian.net')) {
+    if (cfg && cfg.jira_url && cfg.username && cfg.api_token_raw && !cfg.jira_url.includes('example.com') && !cfg.jira_url.includes('inspectron.atlassian.net')) {
       try {
         return await this.fetchLiveJiraIssues(cfg, query);
       } catch (err) {
@@ -74,7 +74,7 @@ class JiraService {
     // Return stored / demo Jira issues
     let issues = db.find('jira_issues', { project_id: projectId });
     if (issues.length === 0) {
-      // Return default CMGalaxy issues
+      // Return default Inspectron issues
       issues = [
         {
           id: 'jira-cmg-104',

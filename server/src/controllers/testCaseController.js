@@ -74,7 +74,7 @@ exports.generateTestCases = async (req, res, next) => {
     const {
       requirement_text,
       requirement_id,
-      project_id = 'proj-cmgalaxy-01',
+      project_id = 'proj-inspectron-01',
       module = 'General',
       feature = 'Feature Workflow',
       focus = 'Comprehensive',
@@ -150,7 +150,7 @@ exports.generateTestCases = async (req, res, next) => {
 exports.createTestCase = (req, res, next) => {
   try {
     const {
-      project_id = 'proj-cmgalaxy-01',
+      project_id = 'proj-inspectron-01',
       requirement_id = 'REQ-001',
       module = 'General',
       feature = 'Feature',

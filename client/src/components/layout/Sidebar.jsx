@@ -44,9 +44,9 @@ export default function Sidebar({ activeSection, onSelectSection }) {
           </div>
           <div>
             <div className="font-extrabold text-sm tracking-wider text-white flex items-center">
-              AI QA <span className="text-brand-400 ml-1 font-semibold">Assistant</span>
+              Inspectron <span className="text-brand-400 ml-1 font-semibold">QA</span>
             </div>
-            <div className="text-[10px] text-slate-400 font-mono tracking-wider uppercase">Enterprise Platform</div>
+            <div className="text-[10px] text-slate-400 font-mono tracking-wider uppercase">AI Quality Platform</div>
           </div>
         </div>
       </div>
@@ -100,7 +100,7 @@ export default function Sidebar({ activeSection, onSelectSection }) {
             </span>
           </div>
           <div className="text-[11px] text-slate-300 font-medium mt-1 truncate">
-            Demo: CMGalaxy Cloud
+            Demo: Inspectron Cloud
           </div>
         </div>
       </div>

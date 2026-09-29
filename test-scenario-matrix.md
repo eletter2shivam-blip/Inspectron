@@ -1,7 +1,7 @@
 # CM Galaxy Signup Journey — Test Scenario Matrix
 
 ## Overview
-This matrix provides comprehensive test scenario coverage for the **CM Galaxy User Registration / Signup Flow** (`https://platform.cmgalaxy.com/sign-up`). It is grounded in the actual application architecture discovered from the live application and its client-side validation rules (Yup schema / Formik implementation).
+This matrix provides comprehensive test scenario coverage for the **CM Galaxy User Registration / Signup Flow** (`https://platform.inspectron.com/sign-up`). It is grounded in the actual application architecture discovered from the live application and its client-side validation rules (Yup schema / Formik implementation).
 
 ---
 
@@ -17,8 +17,8 @@ This matrix provides comprehensive test scenario coverage for the **CM Galaxy Us
 
 | Test ID | Scenario Description | Type | Priority | Test Data / Action | Expected Result | Automation Status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **CM-SIGNUP-001** | Verify direct navigation to signup page URL | Navigation / Positive | P0 | Navigate to `https://platform.cmgalaxy.com/sign-up` | URL is `https://platform.cmgalaxy.com/sign-up`; HTTP 200; page loads without fatal script errors | Automated |
-| **CM-SIGNUP-002** | Verify page title and brand identity | UI / Positive | P1 | Inspect `document.title` and header branding | Title contains `"CMGALAXY - AI Powered Marketing Platform"`; CM Galaxy logo rendered | Automated |
+| **CM-SIGNUP-001** | Verify direct navigation to signup page URL | Navigation / Positive | P0 | Navigate to `https://platform.inspectron.com/sign-up` | URL is `https://platform.inspectron.com/sign-up`; HTTP 200; page loads without fatal script errors | Automated |
+| **CM-SIGNUP-002** | Verify page title and brand identity | UI / Positive | P1 | Inspect `document.title` and header branding | Title contains `"INSPECTRON - AI Powered Marketing Platform"`; CM Galaxy logo rendered | Automated |
 | **CM-SIGNUP-003** | Verify presence of all Step 1 registration fields | UI / Positive | P0 | Check First Name, Last Name, Phone, Email, Password, Confirm Password | All 6 input fields are visible and interactable | Automated |
 | **CM-SIGNUP-004** | Verify field labels and placeholders | UI / Content | P1 | Inspect labels and placeholder attributes | Labels: "First Name", "Last Name", "Phone Number", "Email Address", "Password", "Confirm Password"; Placeholders match specification | Automated |
 | **CM-SIGNUP-005** | Verify Step Indicator displays "1. Sign Up", "2. Brand Setup", "3. Brand Configuration" | UI | P2 | Inspect sidebar / top stepper | Stepper displays all three steps with Step 1 active | Automated |
@@ -93,7 +93,7 @@ This matrix provides comprehensive test scenario coverage for the **CM Galaxy Us
 | **CM-SIGNUP-046** | Email missing username part | Negative | P0 | `@example.com` | Validation error: `"Enter a valid Email."` | Automated |
 | **CM-SIGNUP-047** | Email with disallowed special characters (e.g. `+`, `_`, `%`) | Negative | P1 | `user+tag@example.com` | Validation error: `"Only letters (a-z), numbers (0-9), and dots (.) are allowed."` | Automated |
 | **CM-SIGNUP-048** | Email containing space | Negative | P1 | `user name@example.com` | Validation error: `"No spaces are allowed in the Email address."` | Automated |
-| **CM-SIGNUP-049** | Duplicate already registered email | Negative / Server | P0 | `test@cmgalaxy.com` | Backend response: `"User already exists!"` or redirects existing user to brand configuration | Automated |
+| **CM-SIGNUP-049** | Duplicate already registered email | Negative / Server | P0 | `test@inspectron.com` | Backend response: `"User already exists!"` or redirects existing user to brand configuration | Automated |
 
 ---
 
@@ -143,8 +143,8 @@ This matrix provides comprehensive test scenario coverage for the **CM Galaxy Us
 
 | Test ID | Scenario Description | Type | Priority | Test Data / Viewport | Expected Result | Automation Status |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **CM-SIGNUP-071** | Navigate from Signup to Login page | Navigation | P1 | Click "Login" link | URL transitions to `https://platform.cmgalaxy.com/login` | Automated |
-| **CM-SIGNUP-072** | Navigate from Login to Signup page | Navigation | P1 | Click "Sign Up" on login page | URL transitions to `https://platform.cmgalaxy.com/sign-up` | Automated |
+| **CM-SIGNUP-071** | Navigate from Signup to Login page | Navigation | P1 | Click "Login" link | URL transitions to `https://platform.inspectron.com/login` | Automated |
+| **CM-SIGNUP-072** | Navigate from Login to Signup page | Navigation | P1 | Click "Sign Up" on login page | URL transitions to `https://platform.inspectron.com/sign-up` | Automated |
 | **CM-SIGNUP-073** | Open Terms & Conditions in new tab | Legal / Navigation | P2 | Click "Terms & Conditions" link | New tab opens with URL ending in `/termsconditions` | Automated |
 | **CM-SIGNUP-074** | Open Privacy Policy in new tab | Legal / Navigation | P2 | Click "Privacy Policy" link | New tab opens with URL ending in `/privacypolicy` | Automated |
 | **CM-SIGNUP-075** | Responsive layout: Desktop (1920x1080) | Responsive | P1 | Window size 1920x1080 | Stepper sidebar visible on left, form in main panel, no horizontal scroll | Automated |

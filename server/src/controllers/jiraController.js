@@ -5,7 +5,7 @@ const qualityEngine = require('../services/QualityEngine');
 
 exports.getConfig = (req, res, next) => {
   try {
-    const { projectId = 'proj-cmgalaxy-01' } = req.query;
+    const { projectId = 'proj-inspectron-01' } = req.query;
     const config = jiraService.getConfig(projectId);
     res.json({ success: true, config });
   } catch (err) {
@@ -15,7 +15,7 @@ exports.getConfig = (req, res, next) => {
 
 exports.saveConfig = (req, res, next) => {
   try {
-    const { projectId = 'proj-cmgalaxy-01', jira_url, username, api_token, project_key } = req.body;
+    const { projectId = 'proj-inspectron-01', jira_url, username, api_token, project_key } = req.body;
     const saved = jiraService.saveConfig(projectId, {
       jira_url,
       username,
@@ -30,7 +30,7 @@ exports.saveConfig = (req, res, next) => {
 
 exports.searchIssues = async (req, res, next) => {
   try {
-    const { projectId = 'proj-cmgalaxy-01', query = '' } = req.query;
+    const { projectId = 'proj-inspectron-01', query = '' } = req.query;
     const issues = await jiraService.searchIssues(projectId, query);
     res.json({ success: true, issues });
   } catch (err) {
@@ -41,7 +41,7 @@ exports.searchIssues = async (req, res, next) => {
 exports.getIssueById = async (req, res, next) => {
   try {
     const { issueKey } = req.params;
-    const { projectId = 'proj-cmgalaxy-01' } = req.query;
+    const { projectId = 'proj-inspectron-01' } = req.query;
     const issue = await jiraService.getIssue(projectId, issueKey);
     res.json({ success: true, issue });
   } catch (err) {
@@ -52,7 +52,7 @@ exports.getIssueById = async (req, res, next) => {
 exports.generateTestsFromIssue = async (req, res, next) => {
   try {
     const { issueKey } = req.params;
-    const { projectId = 'proj-cmgalaxy-01', auto_save = true } = req.body;
+    const { projectId = 'proj-inspectron-01', auto_save = true } = req.body;
 
     const issue = await jiraService.getIssue(projectId, issueKey);
 

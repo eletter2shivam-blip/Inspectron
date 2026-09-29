@@ -25,7 +25,7 @@ export function AuthProvider({ children }) {
         .finally(() => setLoading(false));
     } else {
       // Auto-login with default demo user if fresh session so user can immediately test!
-      login('lead@cmgalaxy.io', 'password123', false)
+      login('lead@inspectron.io', 'password123', false)
         .catch(() => {})
         .finally(() => setLoading(false));
     }

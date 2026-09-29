@@ -3,7 +3,7 @@ const aiService = require('../ai/AIService');
 
 exports.analyzeEdgeCases = async (req, res, next) => {
   try {
-    const { requirement_text, requirement_id, project_id = 'proj-cmgalaxy-01' } = req.body;
+    const { requirement_text, requirement_id, project_id = 'proj-inspectron-01' } = req.body;
 
     if (!requirement_text && !requirement_id) {
       return res.status(400).json({ error: 'MISSING_INPUT', message: 'Requirement text or requirement ID is required.' });
@@ -35,7 +35,7 @@ exports.analyzeEdgeCases = async (req, res, next) => {
 // Convert edge case directly into a permanent test case
 exports.promoteToTestCase = (req, res, next) => {
   try {
-    const { edge_case, project_id = 'proj-cmgalaxy-01', requirement_id = 'REQ-EDGE' } = req.body;
+    const { edge_case, project_id = 'proj-inspectron-01', requirement_id = 'REQ-EDGE' } = req.body;
     if (!edge_case) {
       return res.status(400).json({ error: 'MISSING_DATA', message: 'Edge case object is required.' });
     }

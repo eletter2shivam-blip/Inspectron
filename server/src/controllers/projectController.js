@@ -124,7 +124,7 @@ exports.deleteProject = (req, res, next) => {
 exports.resetDemoData = async (req, res, next) => {
   try {
     await seedDatabase(true);
-    res.json({ success: true, message: 'CMGalaxy demo project restored successfully.' });
+    res.json({ success: true, message: 'Inspectron demo project restored successfully.' });
   } catch (err) {
     next(err);
   }

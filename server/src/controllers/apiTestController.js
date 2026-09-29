@@ -20,7 +20,7 @@ exports.getApiTests = (req, res, next) => {
 exports.generateApiTests = async (req, res, next) => {
   try {
     const {
-      project_id = 'proj-cmgalaxy-01',
+      project_id = 'proj-inspectron-01',
       method = 'GET',
       endpoint = '/api/v1/resource',
       headers = { 'Content-Type': 'application/json' },

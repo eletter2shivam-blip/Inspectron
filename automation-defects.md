@@ -1,6 +1,6 @@
 # CM Galaxy Signup Journey — Defect & Discrepancy Log
 
-This document logs all functional, UI/UX, validation, and accessibility defects and discrepancies identified during the comprehensive automated and exploratory testing of the **CM Galaxy User Registration / Signup Flow** (`https://platform.cmgalaxy.com/sign-up`).
+This document logs all functional, UI/UX, validation, and accessibility defects and discrepancies identified during the comprehensive automated and exploratory testing of the **CM Galaxy User Registration / Signup Flow** (`https://platform.inspectron.com/sign-up`).
 
 ---
 
@@ -24,7 +24,7 @@ This document logs all functional, UI/UX, validation, and accessibility defects 
 - **Severity**: Minor
 - **Priority**: P3
 - **Component**: Client-side Yup Validation Schema (`qge` in `index-bundle.js`)
-- **Environment**: Chrome 153.0.8010.54 / Windows 11 / Production build `platform.cmgalaxy.com`
+- **Environment**: Chrome 153.0.8010.54 / Windows 11 / Production build `platform.inspectron.com`
 
 #### Description
 In the frontend React/Vite client bundle, the Yup validation rule for the password field defines the required error message with an inadvertent trailing space:
@@ -34,7 +34,7 @@ password: a.string().trim().required("Required password ")
 While browsers collapse the trailing whitespace during standard HTML rendering (yielding `"Required password"` when queried via `element.getText()`), the raw JSON attribute in Formik error state retains `"Required password "`. This causes strict string assertions or schema contract tests to fail if not sanitized.
 
 #### Steps to Reproduce
-1. Navigate to `https://platform.cmgalaxy.com/sign-up`.
+1. Navigate to `https://platform.inspectron.com/sign-up`.
 2. Click directly into the **Password** field.
 3. Click outside (trigger `blur`) or click the **Sign Up** button without entering a password.
 4. Inspect the Formik error state or DOM text node.
@@ -70,7 +70,7 @@ When Formik triggers a field validation error, Flowbite React applies `color="fa
 Consequently, standard CSS or XPath selectors targeting error messages (such as `//*[contains(@class,'text-red')]` or `//div[.//input[@id='...']]//*[contains(@class,'text-red')]`) match the `<input>` element rather than the intended `<p>` paragraph element. This can adversely impact automated test locators and assistive technologies (screen readers) that rely on CSS classes for landmark identification.
 
 #### Steps to Reproduce
-1. Navigate to `https://platform.cmgalaxy.com/sign-up`.
+1. Navigate to `https://platform.inspectron.com/sign-up`.
 2. Click **Sign Up** with all fields blank.
 3. Inspect DOM for `input#first_name`.
 4. Note that `<input id="first_name" class="... text-red-600 ...">` and `<p class="text-red-600">Required first name</p>` both have identical error classes.
@@ -104,7 +104,7 @@ Add `role="alert"` and `id="first_name_error"` to the error paragraph, and bind 
 The phone number field defaults to `+1` (United States). If a user attempts to select all (`Ctrl+A`) and press `Backspace` or `Delete` to clear the field completely, the country code prefix `+1` is persistently retained. Users cannot paste an international number formatted with their country code directly into the input; they must manually locate and select their flag from the dropdown widget first.
 
 #### Steps to Reproduce
-1. Navigate to `https://platform.cmgalaxy.com/sign-up`.
+1. Navigate to `https://platform.inspectron.com/sign-up`.
 2. Focus on the Phone Number field.
 3. Press `Ctrl+A` then `Backspace`.
 4. Note that `+1` remains present in the field.
@@ -132,7 +132,7 @@ Enable `enableSearch={true}` and `autoFormat={true}` on `react-phone-input-2` to
 When an invalid email containing disallowed characters or spaces (e.g. `user name@example.com`) is provided, Yup evaluates `.email("Enter a valid Email.")` prior to the regex check `.matches(/^[a-zA-Z0-9.]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, "Only letters (a-z), numbers (0-9), and dots (.) are allowed.")`. As a result, the generic format error takes precedence over the more specific character guidance error for space characters.
 
 #### Steps to Reproduce
-1. Navigate to `https://platform.cmgalaxy.com/sign-up`.
+1. Navigate to `https://platform.inspectron.com/sign-up`.
 2. Enter `user name@example.com` into the Email field.
 3. Trigger field blur or click **Sign Up**.
 

@@ -38,7 +38,7 @@ ${steps.map((step, i) => `    // Step ${i + 1}: ${step}\n    // await page.locat
     const methodName = 'test_' + (testCase.test_case_id || 'TC001').replace(/[^a-zA-Z0-9]/g, '_');
     const steps = Array.isArray(testCase.steps) ? testCase.steps : (testCase.steps || '').split('\n');
 
-    return `package com.cmgalaxy.qa.tests;
+    return `package com.inspectron.qa.tests;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -110,7 +110,7 @@ ${steps.map(s => `    // ${s}\n    // cy.get('[data-testid="..."]').should('exis
     const endpoint = apiTest.endpoint || '/api';
     const status = apiTest.expected_status_code || 200;
 
-    return `package com.cmgalaxy.qa.api;
+    return `package com.inspectron.qa.api;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -122,7 +122,7 @@ public class Api${(apiTest.api_test_id || 'Test').replace(/[^a-zA-Z0-9]/g, '')} 
 
     @Test
     public void testEndpoint() {
-        RestAssured.baseURI = "https://api.cmgalaxy.io";
+        RestAssured.baseURI = "https://api.inspectron.io";
 
         given()
             .contentType(ContentType.JSON)
@@ -189,7 +189,7 @@ public class Api${(apiTest.api_test_id || 'Test').replace(/[^a-zA-Z0-9]/g, '')} 
       },
       item: itemArray,
       variable: [
-        { key: 'baseUrl', value: 'https://api.cmgalaxy.io', type: 'string' },
+        { key: 'baseUrl', value: 'https://api.inspectron.io', type: 'string' },
         { key: 'token', value: 'mock_jwt_token', type: 'string' }
       ]
     };

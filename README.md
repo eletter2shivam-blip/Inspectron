@@ -87,7 +87,7 @@
 
 13. **Project Management & Preloaded Demo**
     - Multi-project isolation for requirements, test cases, and history.
-    - Preloaded demo project: **"CMGalaxy"** with all 12 modules:
+    - Preloaded demo project: **"Inspectron"** with all 12 modules:
       - `Dashboard`, `Login`, `Signup`, `Campaign`, `Google Ads`, `Meta Ads`, `LinkedIn`, `Notifications`, `Reports`, `Funnel`, `Support Ticket`, `User Management`.
     - "Reset Demo Project" feature to restore clean baseline state anytime.
 
@@ -123,7 +123,7 @@ fervent-maxwell/
 │   │   ├── index.js                # Server entrypoint & static client server
 │   │   ├── db/
 │   │   │   ├── database.js         # ACID-compliant persistent JSON/SQLite store
-│   │   │   └── seed.js             # CMGalaxy demo dataset loader
+│   │   │   └── seed.js             # Inspectron demo dataset loader
 │   │   ├── ai/
 │   │   │   ├── AIService.js        # Provider abstraction layer
 │   │   │   ├── validator.js        # Zod schema validation & auto-repair engine
@@ -166,7 +166,7 @@ fervent-maxwell/
 cd server
 npm install
 
-# 2. Seed database with CMGalaxy demo project (12 modules)
+# 2. Seed database with Inspectron demo project (12 modules)
 npm run seed
 
 # 3. Run all automated backend tests
@@ -204,9 +204,9 @@ The system includes preconfigured demo accounts for immediate access:
 
 | Persona | Email | Password | Role | Permissions |
 | :--- | :--- | :--- | :--- | :--- |
-| **Sarah Jenkins** | `lead@cmgalaxy.io` | `password123` | `qa_lead` | Full Access (Settings, Prompts, Projects) |
-| **David Chen** | `qa@cmgalaxy.io` | `password123` | `senior_qa` | Test Generation, Quality Review, Export |
-| **Maya Rodriguez** | `maya@cmgalaxy.io` | `password123` | `qa_engineer` | Requirements, Test Cases, Bugs |
+| **Sarah Jenkins** | `lead@inspectron.io` | `password123` | `qa_lead` | Full Access (Settings, Prompts, Projects) |
+| **David Chen** | `qa@inspectron.io` | `password123` | `senior_qa` | Test Generation, Quality Review, Export |
+| **Maya Rodriguez** | `maya@inspectron.io` | `password123` | `qa_engineer` | Requirements, Test Cases, Bugs |
 
 *A one-click demo login switcher is available on the Login screen.*
 

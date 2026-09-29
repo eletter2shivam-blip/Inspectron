@@ -20,8 +20,8 @@ export default function BugAnalyzer({ onNavigateToRegression }) {
   const toast = useToast();
 
   const [title, setTitle] = useState('Meta Ads OAuth Token Expiration Causes Silent Sync Failures');
-  const [description, setDescription] = useState('When an agency token expires or is revoked in Facebook Business Manager, campaign creation in CMGalaxy enters an unhandled retry loop without notifying the user or showing an alert badge.');
-  const [steps, setSteps] = useState('1. Connect Meta Ads Account\n2. In Facebook Business Manager, revoke OAuth access token\n3. In CMGalaxy, trigger "Publish Campaign"\n4. Observe campaign sync progress bar');
+  const [description, setDescription] = useState('When an agency token expires or is revoked in Facebook Business Manager, campaign creation in Inspectron enters an unhandled retry loop without notifying the user or showing an alert badge.');
+  const [steps, setSteps] = useState('1. Connect Meta Ads Account\n2. In Facebook Business Manager, revoke OAuth access token\n3. In Inspectron, trigger "Publish Campaign"\n4. Observe campaign sync progress bar');
   const [expected, setExpected] = useState('Campaign sync catches Meta error code 190, halts retry, transitions campaign to AUTH_EXPIRED, and shows error notification.');
   const [actual, setActual] = useState('Campaign remains stuck at "Publishing (45%)" indefinitely. Worker logs flooded with 400 Bad Request.');
   const [affectedModule, setAffectedModule] = useState('Meta Ads');

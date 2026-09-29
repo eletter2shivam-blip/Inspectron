@@ -25,7 +25,7 @@ const SAMPLE_REQUIREMENTS = [
   },
   {
     title: 'Omnichannel Campaign Creation (PRD-Campaign)',
-    text: 'As an agency marketing lead, I want to create a unified marketing campaign in CMGalaxy and simultaneously push budgets, audiences, and ad creative to Google Ads and Meta Ads Manager, so that I can manage omnichannel campaigns from one single dashboard without context switching.'
+    text: 'As an agency marketing lead, I want to create a unified marketing campaign in Inspectron and simultaneously push budgets, audiences, and ad creative to Google Ads and Meta Ads Manager, so that I can manage omnichannel campaigns from one single dashboard without context switching.'
   },
   {
     title: 'CSV Bulk Lead Import with Validation',

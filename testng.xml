@@ -1,13 +1,13 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 <suite name="CM Galaxy - Smoke Suite" parallel="false" verbose="1">
     <listeners>
-        <listener class-name="com.cmgalaxy.listeners.TestListener" />
+        <listener class-name="com.inspectron.listeners.TestListener" />
     </listeners>
 
     <test name="Signup Smoke Tests">
         <classes>
-            <class name="com.cmgalaxy.tests.signup.SignupSmokeTest" />
-            <class name="com.cmgalaxy.tests.navigation.SignupNavigationTest" />
+            <class name="com.inspectron.tests.signup.SignupSmokeTest" />
+            <class name="com.inspectron.tests.navigation.SignupNavigationTest" />
         </classes>
     </test>
 </suite>

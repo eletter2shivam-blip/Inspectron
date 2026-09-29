@@ -25,7 +25,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.get(['/api/health', '/health'], (req, res) => {
   res.json({
     status: 'HEALTHY',
-    service: 'AI QA Assistant Backend',
+    service: 'Inspectron Backend',
     version: '1.0.0',
     timestamp: new Date().toISOString(),
     database: {
@@ -73,7 +73,7 @@ if (!process.env.VERCEL && process.env.NODE_ENV !== 'test') {
     console.log(`=================================================`);
     console.log(`🚀 AI QA Assistant Server running on port ${PORT}`);
     console.log(`   Health Check: http://localhost:${PORT}/api/health`);
-    console.log(`   Demo Project: CMGalaxy (12 modules initialized)`);
+    console.log(`   Demo Project: Inspectron (12 modules initialized)`);
     console.log(`=================================================`);
   });
 }
