@@ -78,6 +78,8 @@ function optionalAuthenticate(req, res, next) {
   req.user = defaultUser;
   next();
 }
+
+/**
  * Role-Based Access Control (RBAC) Middleware
  * Hierarchy: qa_lead > senior_qa > qa_engineer > viewer
  */
