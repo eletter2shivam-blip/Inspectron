@@ -4,18 +4,47 @@ const { z } = require('zod');
 
 const RequirementAnalysisSchema = z.object({
   summary: z.string().default(''),
+  objective: z.string().optional().default(''),
+  user_goal: z.string().optional().default(''),
+  scope: z.object({
+    in_scope: z.array(z.string()).default([]),
+    out_of_scope: z.array(z.string()).default([])
+  }).optional().default({ in_scope: [], out_of_scope: [] }),
   actors: z.array(z.string()).default([]),
   preconditions: z.array(z.string()).default([]),
   business_rules: z.array(z.string()).default([]),
   functional_requirements: z.array(z.string()).default([]),
   non_functional_considerations: z.array(z.string()).default([]),
   acceptance_criteria: z.array(z.string()).default([]),
-  ambiguities: z.array(z.string()).default([]),
+  ambiguities: z.union([
+    z.array(z.string()),
+    z.array(z.object({
+      statement: z.string().optional().default(''),
+      issue: z.string().optional().default(''),
+      severity: z.string().optional().default('MEDIUM'),
+      recommendation: z.string().optional().default('')
+    }))
+  ]).default([]),
   missing_information: z.array(z.string()).default([]),
   dependencies: z.array(z.string()).default([]),
-  risks: z.array(z.string()).default([]),
-  testable_conditions: z.array(z.string()).default([])
-});
+  risks: z.union([
+    z.array(z.string()),
+    z.array(z.object({
+      category: z.string().optional().default('Functional'),
+      severity: z.string().optional().default('MEDIUM'),
+      risk: z.string().optional().default(''),
+      impact: z.string().optional().default(''),
+      mitigation: z.string().optional().default('')
+    }))
+  ]).default([]),
+  test_scenarios: z.array(z.any()).optional().default([]),
+  edge_cases: z.array(z.any()).optional().default([]),
+  assumptions: z.array(z.string()).optional().default([]),
+  clarification_questions: z.array(z.any()).optional().default([]),
+  testable_conditions: z.array(z.string()).optional().default([]),
+  quality_score: z.any().optional(),
+  risk_assessment: z.any().optional()
+}).passthrough();
 
 const TestCaseItemSchema = z.object({
   test_case_id: z.string().optional(),

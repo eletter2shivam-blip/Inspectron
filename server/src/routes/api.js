@@ -20,7 +20,7 @@ const settingsController = require('../controllers/settingsController');
 const jobController = require('../controllers/jobController');
 const docsController = require('../controllers/docsController');
 
-const { authenticate } = require('../middleware/auth');
+const { authenticate, optionalAuthenticate } = require('../middleware/auth');
 const { logAudit } = require('../middleware/auditLogger');
 const { checkPermission, requireProjectAccess } = require('../middleware/rbac');
 
@@ -49,12 +49,18 @@ router.put('/projects/:id', authenticate, checkPermission('projects:update'), lo
 router.delete('/projects/:id', authenticate, checkPermission('projects:delete'), logAudit('DELETE_PROJECT', 'Project'), projectController.deleteProject);
 router.post('/projects/reset-demo', authenticate, checkPermission('projects:create'), logAudit('RESET_DEMO_DATA', 'Project'), projectController.resetDemoData);
 
-// 4. Requirements
-router.get('/requirements', requirementController.getRequirements);
-router.post('/requirements/analyze', authenticate, checkPermission('requirements:create'), logAudit('ANALYZE_REQUIREMENT', 'Requirement'), requirementController.analyzeRequirement);
-router.get('/requirements/:id', requirementController.getRequirementById);
-router.put('/requirements/:id', authenticate, checkPermission('requirements:update'), logAudit('UPDATE_REQUIREMENT', 'Requirement'), requirementController.updateRequirement);
-router.delete('/requirements/:id', authenticate, checkPermission('requirements:delete'), logAudit('DELETE_REQUIREMENT', 'Requirement'), requirementController.deleteRequirement);
+// 4. Requirements & Requirements Analyzer (v1 and standard endpoints)
+router.get(['/requirements/samples', '/v1/requirements/samples'], requirementController.getSamples);
+router.get(['/requirements/analyses', '/v1/requirements/analyses'], requirementController.getAnalyses);
+router.get(['/requirements/analyses/:id', '/v1/requirements/analyses/:id'], requirementController.getAnalysisById);
+router.delete(['/requirements/analyses/:id', '/v1/requirements/analyses/:id'], optionalAuthenticate, logAudit('DELETE_ANALYSIS', 'RequirementAnalysis'), requirementController.deleteAnalysis);
+router.get(['/requirements/analyses/:id/export', '/v1/requirements/analyses/:id/export'], requirementController.exportAnalysis);
+
+router.post(['/requirements/analyze', '/v1/requirements/analyze'], optionalAuthenticate, logAudit('ANALYZE_REQUIREMENT', 'Requirement'), requirementController.analyzeRequirement);
+router.get(['/requirements', '/v1/requirements'], requirementController.getRequirements);
+router.get(['/requirements/:id', '/v1/requirements/:id'], requirementController.getRequirementById);
+router.put(['/requirements/:id', '/v1/requirements/:id'], optionalAuthenticate, logAudit('UPDATE_REQUIREMENT', 'Requirement'), requirementController.updateRequirement);
+router.delete(['/requirements/:id', '/v1/requirements/:id'], optionalAuthenticate, logAudit('DELETE_REQUIREMENT', 'Requirement'), requirementController.deleteRequirement);
 
 // 5. Test Cases & Versioning
 router.get('/testcases', testCaseController.getTestCases);

@@ -37,50 +37,70 @@ class HeuristicQAEngine {
   }
 
   /**
-   * 1. Analyze Requirement
+    * 1. Analyze Requirement (Comprehensive 10-Dimension QA Analysis)
    */
   async analyzeRequirement(requirementText, context = {}) {
-    const { hasAuth, hasApi, hasPayment, hasSearch, hasUpload, actor, action } = this.extractConcepts(requirementText);
+    const { hasAuth, hasApi, hasData, hasPayment, hasSearch, hasUpload, actor, action } = this.extractConcepts(requirementText);
     const projectName = context.projectName || 'Inspectron';
+    const cleanActor = actor.charAt(0).toUpperCase() + actor.slice(1);
 
+    // 1. Actors & Target Personas
     const actors = [
-      actor.charAt(0).toUpperCase() + actor.slice(1),
+      cleanActor,
       'System Administrator',
       'API Client / Backend Service'
     ];
-    if (hasAuth) actors.push('Unauthenticated Visitor', 'Malicious Actor / Bot');
-    if (hasPayment) actors.push('Finance Lead', 'Stripe Webhook Listener');
+    if (hasAuth) actors.push('Unauthenticated Guest / External User', 'Malicious Actor / Botnet');
+    if (hasPayment) actors.push('Billing Administrator', 'Payment Webhook Listener');
+    if (hasData) actors.push('Database Replication Worker', 'Data Audit Compliance Officer');
 
+    // 2. Preconditions
     const preconditions = [
       `User account is provisioned with active status in ${projectName}`,
       'Network connectivity is established and API gateway is healthy'
     ];
     if (hasAuth) preconditions.push('Session cookies or Bearer JWT are initialized', 'User possesses verified email address');
     if (hasPayment) preconditions.push('Valid billing profile with payment method on file');
+    if (hasData) preconditions.push('Sufficient database storage quota and read/write connection pool available');
 
+    // 3. Granular Business Rules
     const businessRules = [
-      `All user inputs must be sanitized against SQLi and XSS before persistence`,
-      `State transitions must be atomic and committed to PostgreSQL with audit trail`
+      'All user inputs must be strictly sanitized against SQLi and XSS before persistence',
+      'State transitions must be atomic and committed to PostgreSQL with audit trail'
     ];
     if (hasAuth) {
       businessRules.push(
-        'Token/link validity strictly capped at 15 minutes',
-        'Single-use token constraint: consumed tokens must be immediately revoked',
-        'Password complexity: min 8 characters, 1 uppercase, 1 special character, 1 number',
+        'Token/link validity strictly capped at 15 minutes from generation timestamp',
+        'Single-use token constraint: consumed tokens must be immediately revoked and blacklisted',
+        'Password complexity: minimum 8 characters, 1 uppercase, 1 special character, 1 number',
         'Rate limit to maximum 3 requests per hour per IP/identifier to protect against abuse'
+      );
+    }
+    if (hasPayment) {
+      businessRules.push(
+        'Payment transactions require 3D Secure / SCA verification where mandated',
+        'Charge events must be idempotent using client-generated idempotency keys'
+      );
+    }
+    if (hasData || hasUpload) {
+      businessRules.push(
+        'Uploaded files must be scanned for malware and validated against allowed MIME types (.csv, .txt, .json)',
+        'Bulk operations must enforce a hard upper bound of 10,000 records per transaction'
       );
     }
     if (hasSearch) {
       businessRules.push('Pagination default to 20 items per page with max ceiling of 100');
     }
 
+    // 4. Functional Requirements
     const functionalRequirements = [
-      `Render accessible UI elements enabling ${actor} to ${action}`,
+      `Render accessible UI elements enabling ${cleanActor} to ${action}`,
       'Perform instantaneous client-side validation on all mandatory input controls',
-      'Persist modified state and return standardized JSON payload with timestamp',
-      'Provide contextual toast notifications upon success or validation errors'
+      'Persist modified state and return standardized JSON payload with ISO timestamp',
+      'Provide contextual feedback notifications upon success or validation errors'
     ];
 
+    // 5. Non-Functional Considerations
     const nonFunctionalConsiderations = [
       'P95 response time under 400ms under standard operational load',
       'TLS 1.3 encryption in transit and AES-256 at rest for sensitive attributes',
@@ -88,39 +108,229 @@ class HeuristicQAEngine {
       'Idempotent API processing to avoid duplicate transactions on network retry'
     ];
 
+    // 6. Acceptance Criteria (Given / When / Then)
     const acceptanceCriteria = [
-      `AC-1: ${actor} can successfully execute: "${action}" when valid inputs are supplied`,
-      'AC-2: Submitting empty, malformed, or boundary-violating inputs renders clear inline field errors',
-      'AC-3: System displays actionable loading indicator while backend processing is underway',
-      'AC-4: Unauthorized access attempts are rejected with HTTP 401/403 and redirected to login',
-      'AC-5: Network disruptions display a graceful retry prompt without loss of entered form data'
+      `AC-1: Given a valid ${cleanActor}, When attempting to ${action}, Then the operation succeeds and confirmation is rendered`,
+      `AC-2: Given empty, malformed, or boundary-violating inputs, When submission is triggered, Then clear inline field validation errors are displayed`,
+      `AC-3: Given backend asynchronous processing, When the request is in flight, Then an actionable progress indicator is displayed without UI freeze`,
+      `AC-4: Given an unauthenticated or expired session, When accessing protected endpoints, Then the request is rejected with HTTP 401/403 and redirected safely`,
+      `AC-5: Given network latency or transient disconnects, When the request fails, Then a graceful retry action is presented without loss of user state`
     ];
 
-    const ambiguities = [
-      `Unclear what exact error message should be displayed if downstream dependencies fail or time out`,
-      `Unspecified whether mobile viewport requires a specialized simplified card layout versus full table`,
-      `Audit logging requirements not explicitly specified for compliance tracking`
+    // 7. Ambiguities & Vague Statements
+    const ambiguitiesDetailed = [
+      {
+        statement: 'System response should be timely and seamless',
+        issue: 'Subjective performance expectation lacking defined SLA or latency threshold',
+        severity: 'MEDIUM',
+        recommendation: 'Specify exact SLA: P95 < 500ms under 500 concurrent sessions'
+      },
+      {
+        statement: 'Appropriate error messages must be shown',
+        issue: 'Unspecified copy, error codes, and field error mapping for failure scenarios',
+        severity: 'HIGH',
+        recommendation: 'Define standardized error response contract with specific user-facing text and code mappings'
+      },
+      {
+        statement: 'Audit logging for compliance',
+        issue: 'Missing retention period, required log metadata, and security log sanitization guidelines',
+        severity: 'LOW',
+        recommendation: 'Enumerate logged attributes (user_id, IP, action, timestamp) and 90-day retention policy'
+      }
     ];
+    // Flattened array for direct string rendering compatibility
+    const ambiguities = ambiguitiesDetailed.map(a => `[${a.severity}] "${a.statement}": ${a.issue}. (${a.recommendation})`);
 
+    // 8. Missing Information
     const missingInformation = [
       'Specific role-based access permissions (RBAC) required for different team tiers',
-      'Telemetry and analytics event names to fire for data funnel tracking',
-      'Internationalization (i18n) / localization requirements for non-English users'
+      'Telemetry and analytics event tracking schema for user conversion funnels',
+      'Internationalization (i18n) / localization requirements for multi-region users',
+      'Disaster recovery fallback behavior if primary datastore or third-party service is degraded'
     ];
 
+    // 9. System Dependencies
     const dependencies = [
-      `${projectName} Core API Service`,
+      `${projectName} Core API Gateway`,
       'PostgreSQL Primary Datastore',
       'Redis Distributed Cache & Rate Limiting Cluster'
     ];
-    if (hasAuth) dependencies.push('Transactional Email Service (SendGrid/AWS SES)');
-    if (hasPayment) dependencies.push('Payment Gateway API Provider');
+    if (hasAuth) dependencies.push('Transactional Email Service (SendGrid/AWS SES)', 'OAuth 2.0 Identity Provider');
+    if (hasPayment) dependencies.push('Stripe / Payment Gateway API Provider');
+    if (hasUpload || hasData) dependencies.push('Cloud Storage Object Bucket (S3/GCS)', 'Background Job Worker Queue');
 
-    const risks = [
-      'Concurrent updates causing race conditions and inconsistent state',
-      'Third-party external gateway latency causing user session timeouts',
-      'Incomplete input sanitization leading to potential injection vulnerabilities'
+    // 10. Hidden Risks & Failure Modes
+    const risksDetailed = [
+      {
+        category: 'Concurrency',
+        severity: 'HIGH',
+        risk: 'Concurrent updates or rapid multi-clicks causing race conditions and duplicate record generation',
+        impact: 'Data inconsistency and redundant notification delivery',
+        mitigation: 'Implement distributed Redis locks or PostgreSQL row-level locks on primary key'
+      },
+      {
+        category: 'Security',
+        severity: 'HIGH',
+        risk: 'Incomplete input sanitization or permissive CORS leading to injection attacks or unauthorized cross-origin requests',
+        impact: 'Account compromise or unauthorized data exposure',
+        mitigation: 'Enforce parameterized queries, strict CSP headers, and input schema validation with Zod'
+      },
+      {
+        category: 'Performance',
+        severity: 'MEDIUM',
+        risk: 'Downstream external API provider latency causing backend connection pool exhaustion',
+        impact: 'Cascading timeout failures for other concurrent users',
+        mitigation: 'Wrap external calls in circuit breakers with strict 3-second timeout fallbacks'
+      }
     ];
+    // Flattened array for direct string rendering compatibility
+    const risks = risksDetailed.map(r => `[${r.category}] ${r.severity}: ${r.risk}. Mitigation: ${r.mitigation}`);
+
+    // 11. Test Scenarios
+    const testScenarios = [
+      {
+        scenario_id: 'SCEN-01',
+        type: 'Functional',
+        title: `Verify ${cleanActor} can successfully ${action} with valid inputs`,
+        expected_result: 'Operation returns HTTP 200/201 and persistent record is created'
+      },
+      {
+        scenario_id: 'SCEN-02',
+        type: 'Negative',
+        title: 'Verify validation failure when required parameters are omitted or null',
+        expected_result: 'HTTP 422 Unprocessable Entity with targeted field error paths'
+      },
+      {
+        scenario_id: 'SCEN-03',
+        type: 'Boundary',
+        title: 'Verify maximum character length and payload boundary limits',
+        expected_result: 'Gracefully rejected at boundary + 1 with clear user constraint message'
+      },
+      {
+        scenario_id: 'SCEN-04',
+        type: 'Security',
+        title: 'Verify request rejection when JWT token is invalid, tampered, or expired',
+        expected_result: 'HTTP 401 Unauthorized with token expiration reason code'
+      },
+      {
+        scenario_id: 'SCEN-05',
+        type: 'API',
+        title: 'Verify idempotent request replay using identical idempotency key',
+        expected_result: 'Returns cached original response without creating duplicate entries'
+      }
+    ];
+
+    // 12. Edge Cases
+    const edgeCases = [
+      {
+        case: 'Token or link reuse after initial consumption',
+        trigger: 'Clicking confirmation link twice in separate browser tabs',
+        risk_level: 'HIGH'
+      },
+      {
+        case: 'Simultaneous double-clicking on primary submission button',
+        trigger: 'User submits form twice in rapid succession (< 200ms)',
+        risk_level: 'HIGH'
+      },
+      {
+        case: 'Special characters and emoji in string inputs',
+        trigger: 'Submitting UTF-8 multibyte glyphs, zero-width spaces, or RTL text',
+        risk_level: 'MEDIUM'
+      },
+      {
+        case: 'Payload size limit exceeded',
+        trigger: 'Submitting file or payload exceeding maximum allowed payload ceiling',
+        risk_level: 'MEDIUM'
+      },
+      {
+        case: 'Network interruption during database commit',
+        trigger: 'Client drops connection after backend starts transaction',
+        risk_level: 'LOW'
+      }
+    ];
+
+    // 13. Assumptions
+    const assumptions = [
+      `User is accessing ${projectName} from a modern standards-compliant browser (Chrome, Firefox, Safari, Edge)`,
+      'Backend services synchronize clocks via NTP with sub-second accuracy for token expiration',
+      'Database transactions utilize Read Committed isolation level'
+    ];
+
+    // 14. Clarification Questions for Product/Business Stakeholders
+    const clarificationQuestions = [
+      {
+        question: `What is the expected rollback behavior if ${action} partially succeeds in upstream services but fails locally?`,
+        target_role: 'Technical Lead',
+        priority: 'HIGH',
+        reason: 'Prevents orphaned records and data integrity drift across microservices'
+      },
+      {
+        question: `Should rate limits be enforced per user account, per IP address, or per workspace tenant?`,
+        target_role: 'Product Owner',
+        priority: 'MEDIUM',
+        reason: 'Avoids unintended rate limit blocking in corporate NAT environments'
+      },
+      {
+        question: `What specific analytics telemetry events should be dispatched for product performance tracking?`,
+        target_role: 'Product Manager',
+        priority: 'LOW',
+        reason: 'Ensures observability funnel metrics are instrumented during initial sprint'
+      }
+    ];
+
+    // 15. Deterministic Quality Score Calculation (0 - 100)
+    let clarityScore = 80;
+    let completenessScore = 75;
+    let testabilityScore = 85;
+    let specificityScore = 75;
+
+    const textLength = requirementText.trim().length;
+    if (textLength > 150) { clarityScore += 5; completenessScore += 5; }
+    if (textLength > 300) { completenessScore += 5; specificityScore += 5; }
+    if (hasAuth || hasPayment) { specificityScore += 5; }
+    if (businessRules.length >= 4) { completenessScore += 5; testabilityScore += 5; }
+
+    const overallQuality = Math.min(96, Math.round((clarityScore + completenessScore + testabilityScore + specificityScore) / 4));
+
+    const qualityScore = {
+      overall: overallQuality,
+      clarity: clarityScore,
+      completeness: completenessScore,
+      testability: testabilityScore,
+      specificity: specificityScore
+    };
+
+    // 16. Deterministic QA Risk Scoring (0 - 100)
+    let functionalRisk = 35;
+    let securityRisk = hasAuth ? 65 : 30;
+    let performanceRisk = hasUpload || hasData ? 55 : 30;
+    let dataIntegrityRisk = hasPayment || hasData ? 60 : 35;
+    let concurrencyRisk = 45;
+
+    const overallRiskScore = Math.round(
+      (functionalRisk * 0.25) +
+      (securityRisk * 0.30) +
+      (performanceRisk * 0.15) +
+      (dataIntegrityRisk * 0.15) +
+      (concurrencyRisk * 0.15)
+    );
+
+    let riskLevel = 'LOW';
+    if (overallRiskScore >= 70) riskLevel = 'CRITICAL';
+    else if (overallRiskScore >= 50) riskLevel = 'HIGH';
+    else if (overallRiskScore >= 35) riskLevel = 'MEDIUM';
+
+    const riskAssessment = {
+      overall_score: overallRiskScore,
+      risk_level: riskLevel,
+      breakdown: {
+        functional: functionalRisk,
+        security: securityRisk,
+        performance: performanceRisk,
+        data_integrity: dataIntegrityRisk,
+        concurrency: concurrencyRisk
+      }
+    };
 
     const testableConditions = [
       'Boundary value testing on minimum and maximum input lengths',
@@ -131,6 +341,19 @@ class HeuristicQAEngine {
 
     return {
       summary: `Structured requirement specification for "${action}" on ${projectName}, defining workflow parameters, validation constraints, and security standards.`,
+      objective: `Enable ${cleanActor} to ${action} reliably and securely within ${projectName}.`,
+      user_goal: `As ${cleanActor}, execute ${action} with clear feedback and zero data loss.`,
+      scope: {
+        in_scope: [
+          `Execution of ${action} by authorized ${cleanActor}`,
+          'Input validation, atomic persistence, and responsive UI feedback',
+          'Role-based access verification and audit trail logging'
+        ],
+        out_of_scope: [
+          'Bulk automated migration of legacy records',
+          'Third-party legacy billing system integration outside standard APIs'
+        ]
+      },
       actors,
       preconditions,
       business_rules: businessRules,
@@ -138,9 +361,17 @@ class HeuristicQAEngine {
       non_functional_considerations: nonFunctionalConsiderations,
       acceptance_criteria: acceptanceCriteria,
       ambiguities,
+      ambiguities_detail: ambiguitiesDetailed,
       missing_information: missingInformation,
       dependencies,
       risks,
+      risks_detail: risksDetailed,
+      test_scenarios: testScenarios,
+      edge_cases: edgeCases,
+      assumptions,
+      clarification_questions: clarificationQuestions,
+      quality_score: qualityScore,
+      risk_assessment: riskAssessment,
       testable_conditions: testableConditions
     };
   }
