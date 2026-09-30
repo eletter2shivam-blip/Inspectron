@@ -19,8 +19,8 @@ export default function RegressionGenerator() {
   const { selectedProjectId, activeProject, modules } = useProject();
   const toast = useToast();
 
-  const [requirementText, setRequirementText] = useState('Campaign creation workflow modified to support asynchronous Redis task queues for Google and Meta Ads.');
-  const [changesText, setChangesText] = useState('1. Refactored Auth token verification into shared middleware\n2. Updated PostgreSQL campaign budget schema to integer micros\n3. Replaced synchronous Axios calls with BullMQ async job dispatch');
+  const [requirementText, setRequirementText] = useState('');
+  const [changesText, setChangesText] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [impactSummary, setImpactSummary] = useState('');
   const [regressionList, setRegressionList] = useState([]);
@@ -159,71 +159,77 @@ export default function RegressionGenerator() {
           </h3>
         </div>
 
-        <div className="grid grid-cols-1 gap-4">
-          {regressionList.map((reg) => {
-            let badgeBg = 'bg-amber-500/20 text-amber-300 border-amber-500/30';
-            if (reg.classification?.includes('Critical')) badgeBg = 'bg-rose-500/20 text-rose-300 border-rose-500/30';
-            if (reg.classification?.includes('Medium')) badgeBg = 'bg-blue-500/20 text-blue-300 border-blue-500/30';
+        {regressionList.length === 0 ? (
+          <div className="glass-panel p-8 rounded-2xl border border-slate-800 text-center text-slate-500 text-xs">
+            No regression test cases generated yet. Enter updated requirements and release changes above, then click "Generate Regression Test Suite".
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-4">
+            {regressionList.map((reg) => {
+              let badgeBg = 'bg-amber-500/20 text-amber-300 border-amber-500/30';
+              if (reg.classification?.includes('Critical')) badgeBg = 'bg-rose-500/20 text-rose-300 border-rose-500/30';
+              if (reg.classification?.includes('Medium')) badgeBg = 'bg-blue-500/20 text-blue-300 border-blue-500/30';
 
-            return (
-              <div
-                key={reg.id}
-                className="glass-panel p-5 rounded-2xl border border-slate-800 hover:border-slate-700 transition-all space-y-3"
-              >
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
-                  <div className="flex items-center space-x-2.5">
-                    <span className="font-mono text-xs font-bold text-purple-400 bg-purple-950/60 px-2.5 py-1 rounded-lg border border-purple-500/30">
-                      {reg.regression_id || reg.id}
-                    </span>
-                    <span className="text-xs font-bold text-white">{reg.scenario}</span>
-                  </div>
+              return (
+                <div
+                  key={reg.id}
+                  className="glass-panel p-5 rounded-2xl border border-slate-800 hover:border-slate-700 transition-all space-y-3"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                    <div className="flex items-center space-x-2.5">
+                      <span className="font-mono text-xs font-bold text-purple-400 bg-purple-950/60 px-2.5 py-1 rounded-lg border border-purple-500/30">
+                        {reg.regression_id || reg.id}
+                      </span>
+                      <span className="text-xs font-bold text-white">{reg.scenario}</span>
+                    </div>
 
-                  <div className="flex items-center space-x-2">
-                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-800 text-slate-300">
-                      {reg.affected_module}
-                    </span>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${badgeBg}`}>
-                      {reg.classification || 'High Regression'}
-                    </span>
-                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-slate-900 text-slate-400 border border-slate-800">
-                      {reg.impact_type || 'Direct impact'}
-                    </span>
-                    <button
-                      onClick={() => handleDelete(reg.id)}
-                      className="p-1 text-slate-400 hover:text-rose-400"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Reason for Regression */}
-                <div className="text-xs bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
-                  <span className="font-bold text-purple-400">Why at Risk (Reason for Regression):</span>
-                  <p className="text-slate-300 mt-0.5 leading-relaxed">{reg.reason_for_regression}</p>
-                </div>
-
-                {/* Steps & Expected */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                  <div>
-                    <span className="font-bold text-slate-400">Verification Steps:</span>
-                    <div className="mt-1 space-y-1 font-mono text-[11px] text-slate-300 bg-slate-950 p-2.5 rounded-lg border border-slate-800">
-                      {(Array.isArray(reg.steps) ? reg.steps : (reg.steps || '').split('\n')).map((s, i) => (
-                        <div key={i}>{s}</div>
-                      ))}
+                    <div className="flex items-center space-x-2">
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-800 text-slate-300">
+                        {reg.affected_module}
+                      </span>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${badgeBg}`}>
+                        {reg.classification || 'High Regression'}
+                      </span>
+                      <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-slate-900 text-slate-400 border border-slate-800">
+                        {reg.impact_type || 'Direct impact'}
+                      </span>
+                      <button
+                        onClick={() => handleDelete(reg.id)}
+                        className="p-1 text-slate-400 hover:text-rose-400"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   </div>
-                  <div>
-                    <span className="font-bold text-emerald-400">Expected Regression Result:</span>
-                    <div className="mt-1 text-emerald-200 bg-emerald-950/20 p-2.5 rounded-lg border border-emerald-900/40 leading-relaxed">
-                      {reg.expected_result}
+
+                  {/* Reason for Regression */}
+                  <div className="text-xs bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
+                    <span className="font-bold text-purple-400">Why at Risk (Reason for Regression):</span>
+                    <p className="text-slate-300 mt-0.5 leading-relaxed">{reg.reason_for_regression}</p>
+                  </div>
+
+                  {/* Steps & Expected */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                    <div>
+                      <span className="font-bold text-slate-400">Verification Steps:</span>
+                      <div className="mt-1 space-y-1 font-mono text-[11px] text-slate-300 bg-slate-950 p-2.5 rounded-lg border border-slate-800">
+                        {(Array.isArray(reg.steps) ? reg.steps : (reg.steps || '').split('\n')).map((s, i) => (
+                          <div key={i}>{s}</div>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <span className="font-bold text-emerald-400">Expected Regression Result:</span>
+                      <div className="mt-1 text-emerald-200 bg-emerald-950/20 p-2.5 rounded-lg border border-emerald-900/40 leading-relaxed">
+                        {reg.expected_result}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

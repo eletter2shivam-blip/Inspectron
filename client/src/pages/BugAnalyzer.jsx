@@ -19,15 +19,15 @@ export default function BugAnalyzer({ onNavigateToRegression }) {
   const { selectedProjectId, modules } = useProject();
   const toast = useToast();
 
-  const [title, setTitle] = useState('Meta Ads OAuth Token Expiration Causes Silent Sync Failures');
-  const [description, setDescription] = useState('When an agency token expires or is revoked in Facebook Business Manager, campaign creation in Inspectron enters an unhandled retry loop without notifying the user or showing an alert badge.');
-  const [steps, setSteps] = useState('1. Connect Meta Ads Account\n2. In Facebook Business Manager, revoke OAuth access token\n3. In Inspectron, trigger "Publish Campaign"\n4. Observe campaign sync progress bar');
-  const [expected, setExpected] = useState('Campaign sync catches Meta error code 190, halts retry, transitions campaign to AUTH_EXPIRED, and shows error notification.');
-  const [actual, setActual] = useState('Campaign remains stuck at "Publishing (45%)" indefinitely. Worker logs flooded with 400 Bad Request.');
-  const [affectedModule, setAffectedModule] = useState('Meta Ads');
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [steps, setSteps] = useState('');
+  const [expected, setExpected] = useState('');
+  const [actual, setActual] = useState('');
+  const [affectedModule, setAffectedModule] = useState(modules?.[0] || 'Login');
   const [environment, setEnvironment] = useState('Production');
-  const [browser, setBrowser] = useState('Chrome 128 / macOS 14');
-  const [buildVersion, setBuildVersion] = useState('v2.4.1-rc3');
+  const [browser, setBrowser] = useState('');
+  const [buildVersion, setBuildVersion] = useState('');
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(null);

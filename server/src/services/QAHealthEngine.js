@@ -18,6 +18,39 @@ class QAHealthEngine {
     const totalRequirements = requirements.length;
     const totalTestCases = testCases.length;
 
+    // Handle fresh/empty project gracefully
+    if (totalRequirements === 0 && totalTestCases === 0) {
+      return {
+        healthScore: 0,
+        status: 'READY',
+        calculatedAt: new Date().toISOString(),
+        formula: '0.25*ReqCoverage + 0.20*ApprovalRatio + 0.20*ExecPassRate + 0.15*AutomationRatio + 0.10*ApiCoverage + 0.10*DefectScore',
+        weights: {
+          requirementCoverageWeight: 0.25,
+          approvalRatioWeight: 0.20,
+          executionPassRateWeight: 0.20,
+          automationRatioWeight: 0.15,
+          apiCoverageWeight: 0.10,
+          defectPenaltyWeight: 0.10
+        },
+        breakdown: {
+          totalRequirements: 0,
+          coveredRequirements: 0,
+          requirementCoveragePct: 0,
+          totalTestCases: 0,
+          approvedTestCases: 0,
+          approvalRatioPct: 0,
+          executionPassRatePct: 0,
+          automationCoveragePct: 0,
+          apiTestCount: apiTests.length,
+          apiCoveragePct: 0,
+          openCriticalBugs: 0,
+          openHighBugs: 0,
+          defectScore: 100
+        }
+      };
+    }
+
     // 1. Requirement Coverage Factor (Weight: 25%)
     let coveredReqsCount = 0;
     requirements.forEach(req => {

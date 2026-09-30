@@ -48,8 +48,8 @@ export default function RequirementsAnalyzer({ onNavigateToGenerator }) {
   const toast = useToast();
 
   const [samples, setSamples] = useState(DEFAULT_SAMPLE_REQUIREMENTS);
-  const [inputText, setInputText] = useState(DEFAULT_SAMPLE_REQUIREMENTS[0].text);
-  const [title, setTitle] = useState(DEFAULT_SAMPLE_REQUIREMENTS[0].title);
+  const [inputText, setInputText] = useState('');
+  const [title, setTitle] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(null);
   const [analysisId, setAnalysisId] = useState(null);

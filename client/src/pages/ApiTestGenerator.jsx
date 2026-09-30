@@ -241,81 +241,87 @@ export default function ApiTestGenerator() {
           </h3>
         </div>
 
-        <div className="grid grid-cols-1 gap-4">
-          {apiTests.map((t) => (
-            <div
-              key={t.id}
-              className="glass-panel p-5 rounded-2xl border border-slate-800 hover:border-slate-700 transition-all space-y-3"
-            >
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
-                <div className="flex items-center space-x-2.5">
-                  <span className="font-mono text-xs font-bold text-cyan-400 bg-cyan-950/60 px-2.5 py-1 rounded-lg border border-cyan-500/30">
-                    {t.api_test_id || t.id}
-                  </span>
-                  <span className={`font-mono text-xs font-bold px-2 py-0.5 rounded-md ${
-                    t.method === 'POST' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' :
-                    t.method === 'GET' ? 'bg-blue-950 text-blue-400 border border-blue-800' :
-                    t.method === 'DELETE' ? 'bg-rose-950 text-rose-400 border border-rose-800' :
-                    'bg-amber-950 text-amber-400 border border-amber-800'
-                  }`}>
-                    {t.method}
-                  </span>
-                  <span className="font-mono text-xs text-white">{t.endpoint}</span>
-                </div>
+        {apiTests.length === 0 ? (
+          <div className="glass-panel p-8 rounded-2xl border border-slate-800 text-center text-slate-500 text-xs">
+            No API test scenarios generated yet. Define an endpoint and payload above, then click "Generate API Test Suite".
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-4">
+            {apiTests.map((t) => (
+              <div
+                key={t.id}
+                className="glass-panel p-5 rounded-2xl border border-slate-800 hover:border-slate-700 transition-all space-y-3"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                  <div className="flex items-center space-x-2.5">
+                    <span className="font-mono text-xs font-bold text-cyan-400 bg-cyan-950/60 px-2.5 py-1 rounded-lg border border-cyan-500/30">
+                      {t.api_test_id || t.id}
+                    </span>
+                    <span className={`font-mono text-xs font-bold px-2 py-0.5 rounded-md ${
+                      t.method === 'POST' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' :
+                      t.method === 'GET' ? 'bg-blue-950 text-blue-400 border border-blue-800' :
+                      t.method === 'DELETE' ? 'bg-rose-950 text-rose-400 border border-rose-800' :
+                      'bg-amber-950 text-amber-400 border border-amber-800'
+                    }`}>
+                      {t.method}
+                    </span>
+                    <span className="font-mono text-xs text-white">{t.endpoint}</span>
+                  </div>
 
-                <div className="flex items-center space-x-2">
-                  <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-md ${
-                    t.expected_status_code < 300 ? 'bg-emerald-500/20 text-emerald-300' :
-                    t.expected_status_code === 401 || t.expected_status_code === 403 ? 'bg-amber-500/20 text-amber-300' :
-                    'bg-rose-500/20 text-rose-300'
-                  }`}>
-                    Status: {t.expected_status_code}
-                  </span>
-                  <button
-                    onClick={() => handleDelete(t.id)}
-                    className="p-1 text-slate-400 hover:text-rose-400"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Validation & Test Data */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
-                  <span className="font-bold text-cyan-400">Assertions & Validation:</span>
-                  <p className="text-slate-300 mt-1 leading-relaxed">{t.validation}</p>
-                </div>
-                <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
-                  <span className="font-bold text-slate-400">Test Data / Payload Variant:</span>
-                  <p className="text-slate-300 font-mono text-[11px] mt-1">{t.test_data || 'Standard input'}</p>
-                </div>
-              </div>
-
-              {/* Postman Assertion Snippet */}
-              {t.postman_script && (
-                <div className="rounded-xl overflow-hidden bg-slate-950 border border-slate-800">
-                  <div className="flex items-center justify-between px-3 py-1.5 bg-slate-900/80 text-[11px] text-slate-400">
-                    <span className="font-mono flex items-center space-x-1.5">
-                      <Code2 className="w-3 h-3 text-orange-400" />
-                      <span>Postman Tests Script</span>
+                  <div className="flex items-center space-x-2">
+                    <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-md ${
+                      t.expected_status_code < 300 ? 'bg-emerald-500/20 text-emerald-300' :
+                      t.expected_status_code === 401 || t.expected_status_code === 403 ? 'bg-amber-500/20 text-amber-300' :
+                      'bg-rose-500/20 text-rose-300'
+                    }`}>
+                      Status: {t.expected_status_code}
                     </span>
                     <button
-                      onClick={() => handleCopyScript(t.postman_script, t.id)}
-                      className="flex items-center space-x-1 text-slate-300 hover:text-white"
+                      onClick={() => handleDelete(t.id)}
+                      className="p-1 text-slate-400 hover:text-rose-400"
                     >
-                      {copiedScriptId === t.id ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                      <span>{copiedScriptId === t.id ? 'Copied' : 'Copy'}</span>
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
-                  <pre className="p-3 text-[11px] font-mono text-cyan-300 overflow-x-auto">
-                    {t.postman_script}
-                  </pre>
                 </div>
-              )}
-            </div>
-          ))}
-        </div>
+
+                {/* Validation & Test Data */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                  <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
+                    <span className="font-bold text-cyan-400">Assertions & Validation:</span>
+                    <p className="text-slate-300 mt-1 leading-relaxed">{t.validation}</p>
+                  </div>
+                  <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
+                    <span className="font-bold text-slate-400">Test Data / Payload Variant:</span>
+                    <p className="text-slate-300 font-mono text-[11px] mt-1">{t.test_data || 'Standard input'}</p>
+                  </div>
+                </div>
+
+                {/* Postman Assertion Snippet */}
+                {t.postman_script && (
+                  <div className="rounded-xl overflow-hidden bg-slate-950 border border-slate-800">
+                    <div className="flex items-center justify-between px-3 py-1.5 bg-slate-900/80 text-[11px] text-slate-400">
+                      <span className="font-mono flex items-center space-x-1.5">
+                        <Code2 className="w-3 h-3 text-orange-400" />
+                        <span>Postman Tests Script</span>
+                      </span>
+                      <button
+                        onClick={() => handleCopyScript(t.postman_script, t.id)}
+                        className="flex items-center space-x-1 text-slate-300 hover:text-white"
+                      >
+                        {copiedScriptId === t.id ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                        <span>{copiedScriptId === t.id ? 'Copied' : 'Copy'}</span>
+                      </button>
+                    </div>
+                    <pre className="p-3 text-[11px] font-mono text-cyan-300 overflow-x-auto">
+                      {t.postman_script}
+                    </pre>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

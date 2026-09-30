@@ -20,13 +20,7 @@ export default function JiraIntegration({ onNavigateToRepository }) {
   const { selectedProjectId } = useProject();
   const toast = useToast();
 
-  const [config, setConfig] = useState({
-    jira_url: 'https://inspectron.atlassian.net',
-    project_key: 'CMG',
-    username: 'qa-automation@inspectron.io',
-    api_token_masked: '••••••••••••3a9F',
-    connected: true
-  });
+  const [config, setConfig] = useState(null);
 
   const [jiraUrl, setJiraUrl] = useState('');
   const [projectKey, setProjectKey] = useState('');
@@ -139,11 +133,13 @@ export default function JiraIntegration({ onNavigateToRepository }) {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <span className="flex h-2.5 w-2.5 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+              {config?.connected && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>}
+              <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${config?.connected ? 'bg-emerald-500' : 'bg-slate-500'}`}></span>
             </span>
-            <span className="text-xs font-bold text-white uppercase tracking-wider">Jira Cloud Status: Connected</span>
-            <span className="text-[10px] text-slate-400 font-mono">({config.jira_url})</span>
+            <span className="text-xs font-bold text-white uppercase tracking-wider">
+              Jira Cloud Status: {config?.connected ? 'Connected' : 'Not Connected'}
+            </span>
+            {config?.jira_url && <span className="text-[10px] text-slate-400 font-mono">({config.jira_url})</span>}
           </div>
 
           <span className="text-xs text-slate-400 flex items-center space-x-1">

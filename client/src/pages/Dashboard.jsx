@@ -123,26 +123,32 @@ export default function Dashboard({ onNavigate }) {
             <span>Test Type Breakdown</span>
             <span className="text-xs text-slate-400 font-normal">By category</span>
           </h3>
-          <div className="space-y-3">
-            {(charts.testTypes || []).map((t, idx) => {
-              const max = Math.max(...charts.testTypes.map(i => i.count), 1);
-              const pct = Math.round((t.count / max) * 100);
-              return (
-                <div key={idx}>
-                  <div className="flex justify-between text-xs font-medium text-slate-300 mb-1">
-                    <span>{t.name}</span>
-                    <span className="font-mono text-brand-400">{t.count}</span>
+          {(!charts.testTypes || charts.testTypes.length === 0) ? (
+            <div className="py-8 text-center text-slate-500 text-xs">
+              No test types recorded yet.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {charts.testTypes.map((t, idx) => {
+                const max = Math.max(...charts.testTypes.map(i => i.count), 1);
+                const pct = Math.round((t.count / max) * 100);
+                return (
+                  <div key={idx}>
+                    <div className="flex justify-between text-xs font-medium text-slate-300 mb-1">
+                      <span>{t.name}</span>
+                      <span className="font-mono text-brand-400">{t.count}</span>
+                    </div>
+                    <div className="w-full bg-slate-800/80 rounded-full h-2">
+                      <div
+                        className="bg-brand-500 h-2 rounded-full transition-all duration-500"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="w-full bg-slate-800/80 rounded-full h-2">
-                    <div
-                      className="bg-brand-500 h-2 rounded-full transition-all duration-500"
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Priority Distribution */}
@@ -151,32 +157,38 @@ export default function Dashboard({ onNavigate }) {
             <span>Priority Distribution</span>
             <span className="text-xs text-slate-400 font-normal">Risk alignment</span>
           </h3>
-          <div className="space-y-3">
-            {(charts.priorities || []).map((p, idx) => {
-              let color = 'bg-rose-500';
-              if (p.name.includes('High')) color = 'bg-amber-500';
-              if (p.name.includes('Medium')) color = 'bg-blue-500';
-              if (p.name.includes('Low')) color = 'bg-slate-500';
+          {(!charts.priorities || charts.priorities.every(p => p.count === 0)) ? (
+            <div className="py-8 text-center text-slate-500 text-xs">
+              No prioritized test cases yet.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {charts.priorities.map((p, idx) => {
+                let color = 'bg-rose-500';
+                if (p.name.includes('High')) color = 'bg-amber-500';
+                if (p.name.includes('Medium')) color = 'bg-blue-500';
+                if (p.name.includes('Low')) color = 'bg-slate-500';
 
-              const max = Math.max(...charts.priorities.map(i => i.count), 1);
-              const pct = Math.round((p.count / max) * 100);
+                const max = Math.max(...charts.priorities.map(i => i.count), 1);
+                const pct = Math.round((p.count / max) * 100);
 
-              return (
-                <div key={idx}>
-                  <div className="flex justify-between text-xs font-medium text-slate-300 mb-1">
-                    <span>{p.name}</span>
-                    <span className="font-mono text-slate-200">{p.count}</span>
+                return (
+                  <div key={idx}>
+                    <div className="flex justify-between text-xs font-medium text-slate-300 mb-1">
+                      <span>{p.name}</span>
+                      <span className="font-mono text-slate-200">{p.count}</span>
+                    </div>
+                    <div className="w-full bg-slate-800/80 rounded-full h-2">
+                      <div
+                        className={`${color} h-2 rounded-full transition-all duration-500`}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="w-full bg-slate-800/80 rounded-full h-2">
-                    <div
-                      className={`${color} h-2 rounded-full transition-all duration-500`}
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Module Coverage Breakdown */}
@@ -185,26 +197,32 @@ export default function Dashboard({ onNavigate }) {
             <span>Module Test Volume</span>
             <span className="text-xs text-slate-400 font-normal">Top modules</span>
           </h3>
-          <div className="space-y-3">
-            {(charts.modules || []).slice(0, 6).map((m, idx) => {
-              const max = Math.max(...charts.modules.map(i => i.count), 1);
-              const pct = Math.round((m.count / max) * 100);
-              return (
-                <div key={idx}>
-                  <div className="flex justify-between text-xs font-medium text-slate-300 mb-1">
-                    <span>{m.name}</span>
-                    <span className="font-mono text-indigo-400">{m.count} tests</span>
+          {(!charts.modules || charts.modules.length === 0) ? (
+            <div className="py-8 text-center text-slate-500 text-xs">
+              No module test volume recorded yet.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {charts.modules.slice(0, 6).map((m, idx) => {
+                const max = Math.max(...charts.modules.map(i => i.count), 1);
+                const pct = Math.round((m.count / max) * 100);
+                return (
+                  <div key={idx}>
+                    <div className="flex justify-between text-xs font-medium text-slate-300 mb-1">
+                      <span>{m.name}</span>
+                      <span className="font-mono text-indigo-400">{m.count} tests</span>
+                    </div>
+                    <div className="w-full bg-slate-800/80 rounded-full h-2">
+                      <div
+                        className="bg-indigo-500 h-2 rounded-full transition-all duration-500"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="w-full bg-slate-800/80 rounded-full h-2">
-                    <div
-                      className="bg-indigo-500 h-2 rounded-full transition-all duration-500"
-                      style={{ width: `${pct}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
 
@@ -225,34 +243,40 @@ export default function Dashboard({ onNavigate }) {
             </button>
           </div>
 
-          <div className="space-y-3">
-            {recentCases.slice(0, 5).map((tc) => (
-              <div
-                key={tc.id}
-                className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-slate-700 transition-colors flex items-start justify-between"
-              >
-                <div className="space-y-1 pr-3">
-                  <div className="flex items-center space-x-2">
-                    <span className="font-mono text-xs font-bold text-brand-400">{tc.test_case_id || tc.id}</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-slate-700 font-medium">
-                      {tc.module}
-                    </span>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-md font-semibold ${
-                      tc.priority?.includes('P1') ? 'bg-rose-500/20 text-rose-300' : 'bg-amber-500/20 text-amber-300'
-                    }`}>
-                      {tc.priority}
+          {recentCases.length === 0 ? (
+            <div className="py-12 text-center text-slate-500 text-xs">
+              No test cases generated yet. Analyze requirements or use the Test Case Generator to create tests.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {recentCases.slice(0, 5).map((tc) => (
+                <div
+                  key={tc.id}
+                  className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-slate-700 transition-colors flex items-start justify-between"
+                >
+                  <div className="space-y-1 pr-3">
+                    <div className="flex items-center space-x-2">
+                      <span className="font-mono text-xs font-bold text-brand-400">{tc.test_case_id || tc.id}</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-slate-700 font-medium">
+                        {tc.module}
+                      </span>
+                      <span className={`text-[10px] px-2 py-0.5 rounded-md font-semibold ${
+                        tc.priority?.includes('P1') ? 'bg-rose-500/20 text-rose-300' : 'bg-amber-500/20 text-amber-300'
+                      }`}>
+                        {tc.priority}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-200 font-medium line-clamp-1">{tc.title}</p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <span className="text-[10px] font-mono text-emerald-400 font-bold">
+                      Score: {tc.quality_score || 95}%
                     </span>
                   </div>
-                  <p className="text-xs text-slate-200 font-medium line-clamp-1">{tc.title}</p>
                 </div>
-                <div className="text-right shrink-0">
-                  <span className="text-[10px] font-mono text-emerald-400 font-bold">
-                    Score: {tc.quality_score || 95}%
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Recent Audit Activities */}
@@ -262,27 +286,33 @@ export default function Dashboard({ onNavigate }) {
             <span>Recent Activities & Generation Logs</span>
           </h3>
 
-          <div className="space-y-3">
-            {activities.slice(0, 5).map((act) => (
-              <div
-                key={act.id}
-                className="p-3 rounded-xl bg-slate-900/40 border border-slate-800/80 flex items-start space-x-3 text-xs"
-              >
-                <div className="p-1.5 rounded-lg bg-slate-800 text-slate-300 shrink-0 mt-0.5">
-                  <Clock className="w-3.5 h-3.5 text-brand-400" />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-slate-200">{act.action?.replace(/_/g, ' ')}</span>
-                    <span className="text-[10px] text-slate-400 font-mono">
-                      {new Date(act.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </span>
+          {activities.length === 0 ? (
+            <div className="py-12 text-center text-slate-500 text-xs">
+              No activity logged yet.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {activities.slice(0, 5).map((act) => (
+                <div
+                  key={act.id}
+                  className="p-3 rounded-xl bg-slate-900/40 border border-slate-800/80 flex items-start space-x-3 text-xs"
+                >
+                  <div className="p-1.5 rounded-lg bg-slate-800 text-slate-300 shrink-0 mt-0.5">
+                    <Clock className="w-3.5 h-3.5 text-brand-400" />
                   </div>
-                  <p className="text-slate-400 mt-0.5 line-clamp-1">{act.details}</p>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-slate-200">{act.action?.replace(/_/g, ' ')}</span>
+                      <span className="text-[10px] text-slate-400 font-mono">
+                        {new Date(act.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                    <p className="text-slate-400 mt-0.5 line-clamp-1">{act.details}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

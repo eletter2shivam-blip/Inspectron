@@ -18,7 +18,7 @@ export default function EdgeCaseAnalyzer() {
   const { selectedProjectId } = useProject();
   const toast = useToast();
 
-  const [reqText, setReqText] = useState('Campaign creation wizard with budget allocation, audience demographic filters, and asset upload.');
+  const [reqText, setReqText] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [edgeCases, setEdgeCases] = useState([]);
   const [promotedIds, setPromotedIds] = useState(new Set());

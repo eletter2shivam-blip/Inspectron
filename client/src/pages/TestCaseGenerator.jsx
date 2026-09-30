@@ -22,9 +22,9 @@ export default function TestCaseGenerator({ initialRequirement = '', initialTitl
   const { selectedProjectId, activeProject, modules } = useProject();
   const toast = useToast();
 
-  const [reqText, setReqText] = useState(initialRequirement || 'As a registered Inspectron user, I want to reset my password using my registered email so that I can regain access to my account. Token expires in 15 minutes, single use only.');
-  const [selectedModule, setSelectedModule] = useState('Login');
-  const [featureName, setFeatureName] = useState(initialTitle || 'Password Reset Flow');
+  const [reqText, setReqText] = useState(initialRequirement || '');
+  const [selectedModule, setSelectedModule] = useState(modules?.[0] || 'Login');
+  const [featureName, setFeatureName] = useState(initialTitle || '');
   const [focus, setFocus] = useState('Comprehensive (Positive, Negative, Boundary, Security, Session)');
 
   const [isGenerating, setIsGenerating] = useState(false);
