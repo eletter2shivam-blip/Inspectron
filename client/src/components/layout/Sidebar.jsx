@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   LayoutDashboard,
+  Store,
   FileSearch,
   Ticket,
   Sparkles,
@@ -18,6 +19,7 @@ import {
 
 export const NAVIGATION_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, badge: null },
+  { id: 'preture', label: 'Preture Dashboard', icon: Store, badge: 'Retail' },
   { id: 'requirements', label: 'Requirements Analyzer', icon: FileSearch, badge: 'AI' },
   { id: 'jira', label: 'Jira Integration', icon: Ticket, badge: 'Sync' },
   { id: 'generator', label: 'Test Case Generator', icon: Sparkles, badge: 'Core' },

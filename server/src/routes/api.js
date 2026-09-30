@@ -19,6 +19,7 @@ const exportController = require('../controllers/exportController');
 const settingsController = require('../controllers/settingsController');
 const jobController = require('../controllers/jobController');
 const docsController = require('../controllers/docsController');
+const pretureController = require('../controllers/pretureController');
 
 const { authenticate, optionalAuthenticate } = require('../middleware/auth');
 const { logAudit } = require('../middleware/auditLogger');
@@ -61,6 +62,16 @@ router.get(['/requirements', '/v1/requirements'], requirementController.getRequi
 router.get(['/requirements/:id', '/v1/requirements/:id'], requirementController.getRequirementById);
 router.put(['/requirements/:id', '/v1/requirements/:id'], optionalAuthenticate, logAudit('UPDATE_REQUIREMENT', 'Requirement'), requirementController.updateRequirement);
 router.delete(['/requirements/:id', '/v1/requirements/:id'], optionalAuthenticate, logAudit('DELETE_REQUIREMENT', 'Requirement'), requirementController.deleteRequirement);
+
+// 4b. Preture Dashboard — Retail & Store Performance Analytics
+router.get(['/preture/filters', '/preture-dashboard/filters'], pretureController.getFilters);
+router.get(['/preture/summary', '/preture-dashboard/summary'], pretureController.getSummary);
+router.get(['/preture/insights', '/preture-dashboard/insights'], pretureController.getInsights);
+router.get(['/preture/sales-trend', '/preture-dashboard/sales-trend'], pretureController.getSalesTrend);
+router.get(['/preture/store-performance', '/preture-dashboard/store-performance'], pretureController.getStorePerformance);
+router.get(['/preture/billing', '/preture-dashboard/billing'], pretureController.getBilling);
+router.get(['/preture/recent-sales', '/preture-dashboard/recent-sales'], pretureController.getRecentSales);
+router.get(['/preture/export-csv', '/preture-dashboard/export-csv'], pretureController.exportCsv);
 
 // 5. Test Cases & Versioning
 router.get('/testcases', testCaseController.getTestCases);

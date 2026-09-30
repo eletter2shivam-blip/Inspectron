@@ -7,6 +7,7 @@ import Sidebar from './components/layout/Sidebar';
 import Header from './components/layout/Header';
 
 import Dashboard from './pages/Dashboard';
+import PretureDashboard from './pages/PretureDashboard';
 import RequirementsAnalyzer from './pages/RequirementsAnalyzer';
 import JiraIntegration from './pages/JiraIntegration';
 import TestCaseGenerator from './pages/TestCaseGenerator';
@@ -68,6 +69,10 @@ function MainApp() {
         <main className="flex-1 overflow-y-auto bg-slate-950/40">
           {activeSection === 'dashboard' && (
             <Dashboard onNavigate={(sec) => setActiveSection(sec)} />
+          )}
+
+          {activeSection === 'preture' && (
+            <PretureDashboard />
           )}
 
           {activeSection === 'requirements' && (
