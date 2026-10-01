@@ -4,6 +4,7 @@
   "description": "Inspectron - Autonomous AI QA Platform & Quality Engineering Suite",
   "private": true,
   "scripts": {
+    "start": "node server/src/index.js",
     "build": "cd client && npm install && npm run build",
     "server": "npm --prefix server start",
     "server:dev": "npm --prefix server run dev",

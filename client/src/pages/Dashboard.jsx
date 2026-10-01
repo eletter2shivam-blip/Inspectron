@@ -21,22 +21,51 @@ export default function Dashboard({ onNavigate }) {
   const { selectedProjectId, activeProject } = useProject();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
+  const fetchStats = () => {
     setLoading(true);
+    setError(null);
     api.get('/dashboard/stats', { projectId: selectedProjectId })
       .then(res => setData(res))
-      .catch(err => console.error('Dashboard load error:', err))
+      .catch(err => {
+        console.error('Dashboard load error:', err);
+        setError(err.message || 'Failed to load dashboard metrics.');
+      })
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchStats();
   }, [selectedProjectId]);
 
   if (loading) {
     return (
-      <div className="flex-1 flex items-center justify-center p-12">
+      <div className="flex-1 flex items-center justify-center p-12 min-h-[50vh]">
         <div className="flex items-center space-x-3 text-slate-400">
           <div className="w-5 h-5 border-2 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
           <span className="text-sm font-medium">Loading QA Intelligence Dashboard...</span>
         </div>
+      </div>
+    );
+  }
+
+  if (error && !data) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center p-12 min-h-[50vh] text-center space-y-4">
+        <div className="p-3 rounded-2xl bg-rose-500/10 text-rose-400 border border-rose-500/20">
+          <Activity className="w-8 h-8" />
+        </div>
+        <div>
+          <h3 className="text-base font-bold text-white">Dashboard Offline or Reconnecting</h3>
+          <p className="text-xs text-slate-400 mt-1 max-w-sm">{error}</p>
+        </div>
+        <button
+          onClick={fetchStats}
+          className="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs shadow-lg transition-all"
+        >
+          Retry Connection
+        </button>
       </div>
     );
   }

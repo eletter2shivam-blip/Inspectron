@@ -191,28 +191,68 @@ class AIService {
     return result;
   }
 
+  _resolveContextAndUser(primaryObj, context, user) {
+    let resolvedUser = user;
+    let resolvedContext = context;
+
+    // Check if context was passed as the user object (e.g. req.user has email or role or id)
+    if (context && (context.email || context.role || context.id) && !user) {
+      resolvedUser = context;
+      resolvedContext = { projectId: primaryObj?.projectId || 'proj-inspectron-01' };
+    } else {
+      resolvedContext = {
+        projectId: context?.projectId || primaryObj?.projectId || 'proj-inspectron-01',
+        ...(context || {})
+      };
+    }
+    return { resolvedContext, resolvedUser };
+  }
+
   /**
    * 3. Generate Regression Tests
    */
-  async generateRegressionTests(changedFeature, affectedModules = [], context = {}, user = null) {
+  async generateRegressionTests(arg1, arg2 = [], arg3 = {}, arg4 = null) {
+    let input = {};
+    let resolvedContext = {};
+    let resolvedUser = null;
+
+    if (arg1 && typeof arg1 === 'object' && !Array.isArray(arg1) && (arg1.projectId || arg1.requirement || arg1.changes)) {
+      // Called as generateRegressionTests(payload, user)
+      input = arg1;
+      const { resolvedContext: ctx, resolvedUser: usr } = this._resolveContextAndUser(arg1, arg2, arg3);
+      resolvedContext = ctx;
+      resolvedUser = usr;
+    } else {
+      // Called as generateRegressionTests(changedFeature, affectedModules, context, user)
+      input = {
+        requirement: typeof arg1 === 'string' ? arg1 : JSON.stringify(arg1),
+        changes: Array.isArray(arg2) ? `Affected modules: ${arg2.join(', ')}` : String(arg2 || ''),
+        projectId: arg3?.projectId || 'proj-inspectron-01',
+        existingTestCases: arg3?.existingTestCases || []
+      };
+      const { resolvedContext: ctx, resolvedUser: usr } = this._resolveContextAndUser(input, arg3, arg4);
+      resolvedContext = ctx;
+      resolvedUser = usr;
+    }
+
     const activePrompt = this.getActivePrompt('regression_generation', regPrompts.v1);
-    const prompt = regPrompts.v1.buildPrompt(changedFeature, affectedModules, context);
+    const prompt = regPrompts.v1.buildPrompt(input);
 
     const { result, modelUsed, duration, usage } = await this.executeWithFallback(
       regPrompts.v1.systemInstruction,
       prompt,
       schemas.RegressionSuiteSchema,
-      () => this.heuristicEngine.generateRegressionTests(changedFeature, affectedModules, context),
-      context
+      () => this.heuristicEngine.generateRegressionTests(input),
+      resolvedContext
     );
 
     this.logHistory(
-      context.projectId,
+      resolvedContext.projectId,
       'Regression Generation',
       'Feature Change Trigger',
-      { changedFeature, affectedModules },
+      input,
       result,
-      user,
+      resolvedUser,
       duration,
       modelUsed,
       activePrompt.version,
@@ -226,24 +266,25 @@ class AIService {
    * 4. Generate API Tests
    */
   async generateApiTests(endpointSpec, context = {}, user = null) {
+    const { resolvedContext, resolvedUser } = this._resolveContextAndUser(endpointSpec, context, user);
     const activePrompt = this.getActivePrompt('api_test_generation', apiPrompts.v1);
-    const prompt = apiPrompts.v1.buildPrompt(endpointSpec, context);
+    const prompt = apiPrompts.v1.buildPrompt(endpointSpec, resolvedContext);
 
     const { result, modelUsed, duration, usage } = await this.executeWithFallback(
       apiPrompts.v1.systemInstruction,
       prompt,
       schemas.ApiTestSuiteSchema,
-      () => this.heuristicEngine.generateApiTests(endpointSpec, context),
-      context
+      () => this.heuristicEngine.generateApiTests(endpointSpec, resolvedContext),
+      resolvedContext
     );
 
     this.logHistory(
-      context.projectId,
+      resolvedContext.projectId,
       'API Test Generation',
       'OpenAPI / Endpoint Definition',
       endpointSpec,
       result,
-      user,
+      resolvedUser,
       duration,
       modelUsed,
       activePrompt.version,
@@ -297,24 +338,25 @@ class AIService {
    * 6. Generate Synthetic Test Data
    */
   async generateTestData(schemaRequirements, context = {}, user = null) {
+    const { resolvedContext, resolvedUser } = this._resolveContextAndUser(schemaRequirements, context, user);
     const activePrompt = this.getActivePrompt('test_data_generation', dataPrompts.v1);
-    const prompt = dataPrompts.v1.buildPrompt(schemaRequirements, context);
+    const prompt = dataPrompts.v1.buildPrompt(schemaRequirements, resolvedContext);
 
     const { result, modelUsed, duration, usage } = await this.executeWithFallback(
       dataPrompts.v1.systemInstruction,
       prompt,
       schemas.TestDataSetSchema,
-      () => this.heuristicEngine.generateTestData(schemaRequirements, context),
-      context
+      () => this.heuristicEngine.generateTestData(schemaRequirements, resolvedContext),
+      resolvedContext
     );
 
     this.logHistory(
-      context.projectId,
+      resolvedContext.projectId,
       'Test Data Generation',
       'Schema & Data Rules',
       schemaRequirements,
       result,
-      user,
+      resolvedUser,
       duration,
       modelUsed,
       activePrompt.version,
@@ -328,24 +370,25 @@ class AIService {
    * 7. Analyze Bug & RCA
    */
   async analyzeBug(bugReport, context = {}, user = null) {
+    const { resolvedContext, resolvedUser } = this._resolveContextAndUser(bugReport, context, user);
     const activePrompt = this.getActivePrompt('bug_analysis', bugPrompts.v1);
-    const prompt = bugPrompts.v1.buildPrompt(bugReport, context);
+    const prompt = bugPrompts.v1.buildPrompt(bugReport, resolvedContext);
 
     const { result, modelUsed, duration, usage } = await this.executeWithFallback(
       bugPrompts.v1.systemInstruction,
       prompt,
       schemas.BugAnalysisSchema,
-      () => this.heuristicEngine.analyzeBug(bugReport, context),
-      context
+      () => this.heuristicEngine.analyzeBug(bugReport, resolvedContext),
+      resolvedContext
     );
 
     this.logHistory(
-      context.projectId,
+      resolvedContext.projectId,
       'Bug RCA & Analysis',
       'Defect Report',
       bugReport,
       result,
-      user,
+      resolvedUser,
       duration,
       modelUsed,
       activePrompt.version,

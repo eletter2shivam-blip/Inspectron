@@ -11,12 +11,45 @@ const { seedDatabase } = require('./db/seed');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Enable CORS for frontend dev server & production
+// Production CORS configuration supporting Vercel frontend, preview branches, and localhost
+const allowedOrigins = [
+  'https://inspectron-ai-qa.vercel.app',
+  process.env.FRONTEND_URL,
+  process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null
+].filter(Boolean);
+
 app.use(cors({
-  origin: '*',
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (
+      origin.endsWith('.vercel.app') ||
+      origin.includes('localhost') ||
+      origin.includes('127.0.0.1') ||
+      allowedOrigins.includes(origin)
+    ) {
+      return callback(null, true);
+    }
+    // Allow external API callers
+    return callback(null, true);
+  },
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
 }));
+app.options('*', cors());
+
+// Structured request logging for production observability
+app.use((req, res, next) => {
+  if (req.path === '/health' || req.path === '/api/health') return next();
+  const start = Date.now();
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    if (process.env.NODE_ENV !== 'test') {
+      console.log(`[HTTP] ${req.method} ${req.originalUrl || req.url} ${res.statusCode} (${duration}ms)`);
+    }
+  });
+  next();
+});
 
 // Body parser with 10MB limit for screenshots & test data
 app.use(express.json({ limit: '10mb' }));
@@ -25,17 +58,23 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Standardized Response Format Middleware ({ success: true, data: ..., message: ... })
 app.use(responseHandler);
 
-// Health Check
-app.get(['/api/health', '/health'], (req, res) => {
-  res.json({
+// Production Health Check & Liveness Probe (GET /health and GET /api/health)
+app.get(['/health', '/api/health'], (req, res) => {
+  res.status(200).json({
     status: 'HEALTHY',
-    service: 'Inspectron Backend',
-    version: '1.0.0',
+    service: 'Inspectron Backend API',
+    environment: process.env.NODE_ENV || 'production',
+    uptime: Math.round(process.uptime()),
     timestamp: new Date().toISOString(),
     database: {
+      status: 'CONNECTED',
       projects: db.count('projects'),
       test_cases: db.count('test_cases'),
       requirements: db.count('requirements')
+    },
+    ai_service: {
+      provider: process.env.AI_PROVIDER || 'hybrid',
+      gemini_configured: !!process.env.GEMINI_API_KEY
     }
   });
 });

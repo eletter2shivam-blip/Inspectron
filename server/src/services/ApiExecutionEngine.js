@@ -20,7 +20,7 @@ class ApiExecutionEngine {
 
     // Default protocol if relative path or missing
     if (url.startsWith('/')) {
-      const base = envVars.baseUrl || envVars.BASE_URL || 'http://localhost:5000';
+      const base = envVars.baseUrl || envVars.BASE_URL || process.env.API_BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://inspectron-ai-qa.vercel.app');
       url = `${base}${url}`;
     }
 

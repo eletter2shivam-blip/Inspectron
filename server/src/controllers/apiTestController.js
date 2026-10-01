@@ -28,8 +28,10 @@ exports.generateApiTests = async (req, res, next) => {
       query_params = {},
       path_params = {},
       request_body = {},
-      auth = 'Bearer Token',
-      expected_status_code = 200,
+      auth,
+      auth_type,
+      expected_status_code,
+      expected_status,
       expected_response = {},
       auto_save = true
     } = req.body;
@@ -38,16 +40,36 @@ exports.generateApiTests = async (req, res, next) => {
       return res.status(400).json({ error: 'MISSING_ENDPOINT', message: 'API Endpoint path is required.' });
     }
 
+    let parsedHeaders = headers;
+    if (typeof headers === 'string') {
+      try {
+        parsedHeaders = JSON.parse(headers);
+      } catch (e) {
+        parsedHeaders = { 'Content-Type': 'application/json' };
+      }
+    }
+
+    let parsedBody = request_body;
+    if (typeof request_body === 'string' && request_body.trim().startsWith('{')) {
+      try {
+        parsedBody = JSON.parse(request_body);
+      } catch (e) {
+        parsedBody = request_body;
+      }
+    }
+
+    const resolvedStatus = expected_status_code !== undefined ? expected_status_code : (expected_status !== undefined ? expected_status : 200);
+
     const spec = {
       projectId: project_id,
       method: method.toUpperCase(),
       endpoint,
-      headers,
+      headers: parsedHeaders,
       query_params,
       path_params,
-      request_body,
-      auth,
-      expected_status_code: parseInt(expected_status_code, 10),
+      request_body: parsedBody,
+      auth: auth || auth_type || 'Bearer Token',
+      expected_status_code: parseInt(resolvedStatus, 10) || 200,
       expected_response
     };
 
